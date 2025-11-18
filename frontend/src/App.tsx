@@ -1,0 +1,60 @@
+import { Routes, Route } from 'react-router-dom'
+import DashboardLayout from '@/components/dashboard/DashboardLayout'
+import DashboardHome from '@/pages/dashboard/DashboardHome'
+import ProductsPage from '@/pages/products/ProductsPage'
+import UsersPage from '@/pages/users/UsersPage'
+import ProfilePage from '@/pages/profile/ProfilePage'
+import LoginPage from '@/pages/auth/LoginPage'
+import RegisterPage from '@/pages/auth/RegisterPage'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
+
+
+
+function App() {
+  return (
+    <>
+      <Routes>
+        {/* Authentication routes */}
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        
+        {/* Protected Dashboard routes */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<DashboardHome />} />
+        </Route>
+        
+        {/* Protected individual pages */}
+        <Route path="/products" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<ProductsPage />} />
+        </Route>
+        
+        <Route path="/users" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<UsersPage />} />
+        </Route>
+        
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<ProfilePage />} />
+        </Route>
+      </Routes>
+
+    </>
+  )
+}
+
+export default App

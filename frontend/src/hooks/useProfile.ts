@@ -13,10 +13,10 @@ export const useProfileMutations = () => {
       if (data.success && data.data) {
         // Update the user data in the auth context
         setUserData(data.data);
-        
+
         // Update any cached user data
         queryClient.invalidateQueries({ queryKey: ['auth', 'user'] });
-        
+
         toast.success('Profile updated successfully!');
       } else {
         toast.error(data.message || 'Failed to update profile');
@@ -24,7 +24,8 @@ export const useProfileMutations = () => {
     },
     onError: (error: any) => {
       console.error('Profile update error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update profile';
+      const errorMessage =
+        error.response?.data?.message || 'Failed to update profile';
       toast.error(errorMessage);
     },
   });

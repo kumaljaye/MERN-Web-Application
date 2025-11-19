@@ -32,6 +32,7 @@ export interface ISystemUser extends Document {
   password: string;
   birthDate: string;
   mobileNumber: string;
+  role: 'seller' | 'customer';
   isActive: boolean;
   lastLogin: Date | null;
   createdAt: Date;
@@ -60,6 +61,7 @@ export interface ISystemUserInput {
   confirmPassword: string;
   birthDate: string;
   mobileNumber: string;
+  role: 'seller' | 'customer';
 }
 
 export interface IValidationResult {

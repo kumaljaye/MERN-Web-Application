@@ -14,7 +14,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     console.log('🛡️ ProtectedRoute Check:', {
       isAuthenticated,
       user: user ? `${user.firstName} ${user.lastName}` : 'None',
-      currentPath: location.pathname
+      currentPath: location.pathname,
     });
   }
 

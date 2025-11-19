@@ -1,16 +1,22 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { SystemUser } from '../apis/auth';
-import { 
-  getToken, 
-  setToken, 
-  removeToken, 
-  getStoredUser, 
-  setStoredUser, 
+import {
+  getToken,
+  setToken,
+  removeToken,
+  getStoredUser,
+  setStoredUser,
   initializeAuth,
-  validateAndCleanupToken
+  validateAndCleanupToken,
 } from '../utils/cookies';
 
 interface AuthContextType {
@@ -37,7 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     // Initialize axios headers from cookies
     initializeAuth();
-    
+
     const token = getToken();
     const storedUser = getStoredUser();
 
@@ -53,28 +59,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const validateToken = () => {
       const token = getToken();
-      
+
       if (user && token) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           const currentTime = Math.floor(Date.now() / 1000);
           const timeUntilExpiry = payload.exp - currentTime;
-          
+
           // Show warning 15 seconds before expiry
           if (timeUntilExpiry > 0 && timeUntilExpiry <= 15) {
-            toast.warning(
-              `Session expiring in ${timeUntilExpiry} seconds`,
-              {
-                id: 'token-expiry-warning',
-                duration: 3000,
-              }
-            );
+            toast.warning(`Session expiring in ${timeUntilExpiry} seconds`, {
+              id: 'token-expiry-warning',
+              duration: 3000,
+            });
           }
-        } catch (error) {
+        } catch {
           // Token parsing failed, will be handled by validateAndCleanupToken
         }
       }
-      
+
       if (user && !validateAndCleanupToken()) {
         // Token expired, show notification and auto logout
         toast.error('Your session has expired. Please log in again.', {
@@ -88,10 +91,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Check immediately
     validateToken();
-    
+
     // Set up interval to check every 10 seconds for more responsive warnings
     const interval = setInterval(validateToken, 10000);
-    
+
     return () => clearInterval(interval);
   }, [user, isInitialized, navigate, queryClient]);
 
@@ -127,10 +130,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Don't render children until auth state is initialized
   if (!isInitialized) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <div className="border-primary mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+          <p className="text-muted-foreground text-sm">Loading...</p>
         </div>
       </div>
     );

@@ -4,44 +4,59 @@ import { getNextSequence } from '@/config/database';
 import { NotificationTemplates } from '@/types/notification';
 import { createSuccessResponse, createErrorResponse } from '@/types/response';
 import { IUserInput } from '@/types/database';
+import { authenticateToken, requireSeller } from '@/middleware/auth';
 
 const router = express.Router();
 
+// Apply authentication and seller role requirement to all user routes
+router.use(authenticateToken);
+router.use(requireSeller);
+
 /**
- * GET /users - Get all users (supports pagination via query params)
+ * GET /users - Get all users with pagination
+ * Query parameters:
+ *   - page: page number (default: 1)
+ *   - limit: items per page (default: 10)
+ *   - sortBy: field to sort by (default: userId)
+ *   - sortOrder: asc or desc (default: desc)
  */
 router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
-    const shouldPaginate = typeof req.query.page !== 'undefined' || typeof req.query.limit !== 'undefined';
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const sortBy = (req.query.sortBy as string) || 'userId';
+    const sortOrder = (req.query.sortOrder as string) || 'desc';
 
-    if (!shouldPaginate) {
-      const users = await UserModel.find({}).sort({ userId: -1 });
-      res.json(users);
-      return;
-    }
-
-    const page = Math.max(parseInt(req.query.page as string, 10) || 1, 1);
-    const limitParam = parseInt(req.query.limit as string, 10);
-    const limit = Math.min(Math.max(limitParam || 10, 1), 100);
+    // Calculate skip value for pagination
     const skip = (page - 1) * limit;
 
-    const [users, total] = await Promise.all([
-      UserModel.find({}).sort({ userId: -1 }).skip(skip).limit(limit),
-      UserModel.countDocuments(),
-    ]);
+    // Create sort object
+    const sort: { [key: string]: 1 | -1 } = {};
+    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    // Get total count for pagination metadata
+    const totalItems = await UserModel.countDocuments({});
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Fetch users with pagination
+    const users = await UserModel.find({})
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+
+    // Create pagination metadata
+    const pagination = {
+      page,
+      limit,
+      totalItems,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1
+    };
 
     res.json({
       users,
-      pagination: {
-        page,
-        limit,
-        totalItems: total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrevious: page > 1,
-      },
+      pagination
     });
   } catch (err) {
     console.error('Error fetching users:', err);

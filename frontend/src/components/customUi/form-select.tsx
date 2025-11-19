@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   FormControl,
@@ -6,15 +6,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Control } from "react-hook-form";
+} from '@/components/ui/select';
+import { Control } from 'react-hook-form';
 
 export interface SelectOption {
   value: string;
@@ -37,7 +37,7 @@ export function FormSelect({
   label,
   options,
   placeholder,
-  className = "",
+  className = '',
 }: FormSelectProps) {
   return (
     <FormField
@@ -49,7 +49,9 @@ export function FormSelect({
           <FormControl>
             <Select onValueChange={field.onChange} defaultValue={field.value}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={placeholder || `Select ${label.toLowerCase()}`} />
+                <SelectValue
+                  placeholder={placeholder || `Select ${label.toLowerCase()}`}
+                />
               </SelectTrigger>
               <SelectContent className="min-w-[200px]">
                 {options.map((option) => (

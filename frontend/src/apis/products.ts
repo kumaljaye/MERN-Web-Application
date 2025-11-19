@@ -2,6 +2,14 @@ import apiClient from '@/libs/axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  category?: string;
+}
+
 export interface PaginatedProductsResponse<TProduct = any> {
   products: TProduct[];
   pagination: {
@@ -14,65 +22,33 @@ export interface PaginatedProductsResponse<TProduct = any> {
   };
 }
 
-export async function fetchProducts(page?: number, limit?: number): Promise<PaginatedProductsResponse> {
+export async function fetchProducts(
+  params?: PaginationParams
+): Promise<PaginatedProductsResponse> {
   try {
-    const params: Record<string, number> = {};
-    if (typeof page === 'number') params.page = page;
-    if (typeof limit === 'number') params.limit = limit;
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+    if (params?.category) queryParams.append('category', params.category);
 
-    const response = await apiClient.get(`${API_BASE_URL}/api/products`, { params });
-    console.log('Full API response:', response.data);
-    
-    if (Array.isArray(response.data)) {
-      return {
-        products: response.data,
-        pagination: {
-          page: 1,
-          limit: response.data.length,
-          totalItems: response.data.length,
-          totalPages: 1,
-          hasNext: false,
-          hasPrevious: false,
-        },
-      };
-    }
-
-    if (response.data?.products && response.data?.pagination) {
-      return response.data as PaginatedProductsResponse;
-    }
-
-    if (response.data?.data) {
-      const fallbackData = response.data.data;
-      return {
-        products: fallbackData,
-        pagination: {
-          page: 1,
-          limit: fallbackData.length,
-          totalItems: fallbackData.length,
-          totalPages: 1,
-          hasNext: false,
-          hasPrevious: false,
-        },
-      };
-    }
-
-    console.warn('Unexpected response structure:', response.data);
-    const fallback = response.data?.products ?? response.data?.data ?? response.data ?? [];
-    return {
-      products: Array.isArray(fallback) ? fallback : [],
-      pagination: {
-        page: 1,
-        limit: Array.isArray(fallback) ? fallback.length : 0,
-        totalItems: Array.isArray(fallback) ? fallback.length : 0,
-        totalPages: 1,
-        hasNext: false,
-        hasPrevious: false,
-      },
-    };
+    const url = `${API_BASE_URL}/api/products${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await apiClient.get(url);
+    return response.data;
   } catch (err) {
     console.error('Error fetching products:', err);
-    throw new Error("Failed to fetch products");
+    throw new Error('Failed to fetch products');
   }
 }
 
-
+// Keep the old function for backward compatibility (returns all products)
+export async function fetchAllProducts(): Promise<any[]> {
+  try {
+    const response = await fetchProducts({ page: 1, limit: 1000 }); // Large limit to get all
+    return response.products;
+  } catch (err) {
+    console.error('Error fetching all products:', err);
+    throw new Error('Failed to fetch products');
+  }
+}

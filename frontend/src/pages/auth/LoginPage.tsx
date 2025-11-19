@@ -29,13 +29,13 @@ export default function LoginPage() {
     defaultValues: {
       email: '',
       password: '',
-    }
+    },
   });
 
   const {
     handleSubmit,
     formState: { isValid },
-    control
+    control,
   } = form;
 
   const onSubmit = async (data: LoginFormData) => {
@@ -46,12 +46,14 @@ export default function LoginPage() {
   const isLoading = loginMutation.isPending;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md p-6 space-y-6">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <Card className="w-full max-w-xl space-y-6 p-6">
         <div className="text-center">
-          <LogIn className="mx-auto h-12 w-12 text-primary" />
-          <h1 className="text-2xl font-bold text-gray-900 mt-4">Welcome Back</h1>
-          <p className="text-sm text-gray-600 mt-2">
+          <LogIn className="text-primary mx-auto h-12 w-12" />
+          <h1 className="mt-4 text-2xl font-bold text-gray-900">
+            Welcome Back
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
             Please sign in to your account to continue.
           </p>
         </div>
@@ -84,19 +86,19 @@ export default function LoginPage() {
           </form>
         </Form>
 
-        <div className="text-center space-y-2">
+        <div className="space-y-2 text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-primary hover:text-primary/80"
+              className="text-primary hover:text-primary/80 font-medium"
             >
               Create account
             </Link>
           </p>
           <Link
             to="/forgot-password"
-            className="text-sm text-gray-600 hover:text-primary block"
+            className="hover:text-primary block text-sm text-gray-600"
           >
             Forgot your password?
           </Link>

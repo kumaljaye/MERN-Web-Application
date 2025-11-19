@@ -1,4 +1,4 @@
- import Cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 import { SystemUser } from '../apis/auth';
 import apiClient from '../libs/axios';
 
@@ -8,7 +8,7 @@ const isTokenExpired = (token: string): boolean => {
     const payload = JSON.parse(atob(token.split('.')[1]));
     const currentTime = Math.floor(Date.now() / 1000);
     return payload.exp < currentTime;
-  } catch (error) {
+  } catch {
     return true; // If we can't parse, consider it expired
   }
 };
@@ -19,22 +19,22 @@ const USER_KEY = 'auth_user';
 
 // Cookie options
 const cookieOptions = {
-  expires: 1/24, // 1 hour (1 day / 24 hours)
+  expires: 1 / 24, // 1 hour (1 day / 24 hours)
   secure: window.location.protocol === 'https:', // Only use secure in HTTPS
   sameSite: 'strict' as const,
-  path: '/'
+  path: '/',
 };
 
 // Token management with cookies
 export const getToken = (): string | null => {
   const token = Cookies.get(TOKEN_KEY);
-  
+
   if (token && isTokenExpired(token)) {
     // Token is expired, remove cookies automatically
     removeToken();
     return null;
   }
-  
+
   return token || null;
 };
 
@@ -63,14 +63,14 @@ export const setStoredUser = (user: SystemUser): void => {
 // Validate token and cleanup if expired
 export const validateAndCleanupToken = (): boolean => {
   const token = Cookies.get(TOKEN_KEY);
-  
+
   if (!token) return false;
-  
+
   if (isTokenExpired(token)) {
     removeToken();
     return false;
   }
-  
+
   return true;
 };
 

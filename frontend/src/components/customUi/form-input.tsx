@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   FormControl,
@@ -6,15 +6,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Control } from "react-hook-form";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Control } from 'react-hook-form';
 
 interface FormInputProps {
   control: Control<any>;
   name: string;
   label: string;
-  type?: "text" | "email" | "date" | "number" | "password";
+  type?: 'text' | 'email' | 'date' | 'number' | 'password';
   placeholder?: string;
   required?: boolean;
   className?: string;
@@ -25,9 +25,9 @@ export function FormInput({
   control,
   name,
   label,
-  type = "text",
+  type = 'text',
   placeholder,
-  className = "",
+  className = '',
   disabled = false,
 }: FormInputProps) {
   return (

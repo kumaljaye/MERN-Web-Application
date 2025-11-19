@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   FormControl,
@@ -6,9 +6,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Control } from "react-hook-form";
+} from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { Control } from 'react-hook-form';
 
 interface FormTextareaProps {
   control: Control<any>;
@@ -26,7 +26,7 @@ export function FormTextarea({
   label,
   placeholder,
   rows = 3,
-  className = "",
+  className = '',
 }: FormTextareaProps) {
   return (
     <FormField

@@ -31,7 +31,7 @@ createRoot(document.getElementById('root')!).render(
           <AuthProvider>
             <App />
           </AuthProvider>
-          <Toaster 
+          <Toaster
             position="top-right"
             richColors
             duration={4000}
@@ -40,7 +40,7 @@ createRoot(document.getElementById('root')!).render(
                 background: 'var(--background)',
                 color: 'var(--foreground)',
                 border: '2px solid var(--border)',
-              }
+              },
             }}
           />
         </BrowserRouter>

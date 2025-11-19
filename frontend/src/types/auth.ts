@@ -6,6 +6,7 @@ export interface User {
   email: string;
   birthDate: string;
   mobileNumber: string;
+  role: 'seller' | 'customer';
   isActive: boolean;
   lastLogin?: Date;
   createdAt: Date;
@@ -16,6 +17,7 @@ export interface TokenPayload {
   userId: number;
   name: string;
   email: string;
+  role: 'seller' | 'customer';
   iat?: number;
   exp?: number;
 }
@@ -48,6 +50,7 @@ export interface RegisterForm {
   email: string;
   password: string;
   confirmPassword: string;
+  role: 'seller' | 'customer';
   birthDate: string;
   mobileNumber: string;
 }

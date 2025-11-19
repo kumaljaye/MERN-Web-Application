@@ -12,7 +12,9 @@ const apiClient = axios.create({
 // Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
+    console.log(
+      `Making ${config.method?.toUpperCase()} request to ${config.url}`
+    );
     return config;
   },
   (error) => {
@@ -29,7 +31,7 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     console.error('Response error:', error.response?.data || error.message);
-    
+
     // Handle different error status codes
     if (error.response?.status === 401) {
       console.error('Unauthorized access');
@@ -38,7 +40,7 @@ apiClient.interceptors.response.use(
     } else if (error.response?.status >= 500) {
       console.error('Server error');
     }
-    
+
     return Promise.reject(error);
   }
 );

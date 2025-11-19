@@ -1,131 +1,147 @@
-
-import { useEffect, useState } from "react"
-import { createUserColumns, User } from "./table-column/UserColumns"
-import { DataTable } from "../../components/data-table/data-table"
-import { DataTableFilter } from "@/components/data-table/data-table-filter"
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import { Button } from "@/components/ui/button"
-import { useUsers } from "@/hooks/useUser"
-import ViewUser from "./model/ViewUser"
-import DeleteConfirmDialog from "../../components/customUi/DeleteConfirmDialog"
-import UserForm from "@/pages/users/forms/UserForm"
-import { useDeleteUser } from "@/hooks/useUserMutations"
-import { PaginationState } from "@tanstack/react-table"
+import { useState } from 'react';
+import { createUserColumns, User } from './table-column/UserColumns';
+import { DataTable } from '../../components/data-table/data-table';
+import { DataTableFilter } from '@/components/data-table/data-table-filter';
+import { DataTableViewOptions } from '@/components/data-table/data-table-view-options';
+import { Button } from '@/components/ui/button';
+import { useUsers } from '@/hooks/useUser';
+import ViewUser from './model/ViewUser';
+import DeleteConfirmDialog from '../../components/customUi/DeleteConfirmDialog';
+import UserForm from '@/pages/users/forms/UserForm';
+import { useDeleteUser } from '@/hooks/useUserMutations';
+import { PaginationState } from '@tanstack/react-table';
 
 export default function UsersPage() {
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const [isFormOpen, setIsFormOpen] = useState(false)
-    const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 5 })
-    const { data: usersResponse, isLoading, error } = useUsers({
-      page: pagination.pageIndex + 1,
-      limit: pagination.pageSize,
-    })
-    const users = (usersResponse as any)?.users ?? []
-    const totalPages = (usersResponse as any)?.pagination?.totalPages ?? 1
-    
-    console.log('👥 Users:', {
-      currentPage: pagination.pageIndex + 1,
-      pageSize: pagination.pageSize,
-      totalPages,
-      usersCount: users.length,
-      isLoading
-    })
+  // Pagination state
+  const [paginationState, setPaginationState] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-    // Reset to first page when page size changes
-    const handlePaginationChange = (updater: any) => {
-      console.log('📄 Users pagination change triggered')
-      setPagination((prev) => {
-        const newState = typeof updater === 'function' ? updater(prev) : updater
-        console.log('📄 Users:', prev.pageIndex + 1, '→', newState.pageIndex + 1, '| Size:', prev.pageSize, '→', newState.pageSize)
-        // If page size changed, reset to first page
-        if (newState.pageSize !== prev.pageSize) {
-          console.log('Page size changed, resetting to page 0')
-          return { ...newState, pageIndex: 0 }
-        }
-        return newState
-      })
-    }
+  // Use React Query hook for fetching users with pagination
+  const {
+    data: usersResponse,
+    isLoading,
+    error,
+  } = useUsers({
+    page: paginationState.pageIndex + 1,
+    limit: paginationState.pageSize,
+  });
 
-    useEffect(() => {
-      const maxPageIndex = Math.max(totalPages - 1, 0)
-      if (pagination.pageIndex > maxPageIndex && totalPages > 0) {
-        console.log('Clamping page index from', pagination.pageIndex, 'to', maxPageIndex)
-        setPagination((prev) => ({ ...prev, pageIndex: maxPageIndex }))
-      }
-    }, [totalPages]) // Remove pagination.pageIndex to prevent infinite loops
-    const [viewUser, setViewUser] = useState(false)
-    const [editUser, setEditUser] = useState(false)
-    const [deleteUser, setDeleteUser] = useState(false)
-    const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  
-    // React Query mutation for deleting users
-    const deleteUserMutation = useDeleteUser();
-  
-    // Handle view user click
-    const handleViewClick = (user: User) => {
-      console.log("Viewing user:", user)
-      setSelectedUser(user)
-      setViewUser(true)
-    }
-  
-    // Handle edit user click
-    const handleEditClick = (user: User) => {
-      console.log("Editing user:", user)
-      setSelectedUser(user)
-      setEditUser(true)
-    }
-  
-    // Handle delete user click
-    const handleDeleteClick = (user: User) => {
-      console.log("Deleting user:", user)
-      setSelectedUser(user)
-      setDeleteUser(true)
-    }
-  
-    // Handle view user dialog close
-    const handleViewUserClose = (open: boolean) => {
-      setViewUser(open)
-      if (!open) {
-        setSelectedUser(null)
+  const allUsers = usersResponse?.users ?? [];
+  const totalPages = usersResponse?.pagination?.totalPages ?? 0;
+
+  // View user dialog state
+  const [isViewUserOpen, setIsViewUserOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  // Delete confirmation dialog state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+
+  // Edit form state
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+
+  // Delete user mutation
+  const deleteUserMutation = useDeleteUser();
+
+  // Handle view user
+  const handleView = (user: User) => {
+    console.log('Viewing user:', user);
+    setSelectedUser(user);
+    setIsViewUserOpen(true);
+  };
+
+  // Handle edit user
+  const handleEdit = (user: User) => {
+    console.log('Editing user:', user);
+    setUserToEdit(user);
+    setIsEditFormOpen(true);
+  };
+
+  // Handle delete user
+  const handleDelete = (user: User) => {
+    console.log('Preparing to delete user:', user);
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // Confirm delete user
+  const confirmDeleteUser = async () => {
+    if (userToDelete) {
+      try {
+        await deleteUserMutation.mutateAsync(userToDelete._id);
+        console.log('User deleted successfully:', userToDelete);
+        setIsDeleteDialogOpen(false);
+        setUserToDelete(null);
+      } catch (error) {
+        console.error('Error deleting user:', error);
       }
     }
-  
-    // Create columns with callbacks
-    const columns = createUserColumns(handleViewClick, handleEditClick, handleDeleteClick)
-  
-    if (isLoading) return <div className="p-10 text-center">Loading users...</div>
-    if (error) return <div className="p-10 text-center text-red-500">{error.message}</div>
+  };
+
+  // Handle view user dialog close
+  const handleViewUserClose = (open: boolean) => {
+    setIsViewUserOpen(open);
+    if (!open) {
+      setSelectedUser(null);
+    }
+  };
+
+  // Handle edit form close
+  const handleEditFormClose = (open: boolean) => {
+    setIsEditFormOpen(open);
+    if (!open) {
+      setUserToEdit(null);
+    }
+  };
+
+  // Create columns with callbacks
+  const columns = createUserColumns(handleView, handleEdit, handleDelete);
+
+  if (isLoading) return <div className="p-10 text-center">Loading...</div>;
+  if (error)
+    return <div className="p-10 text-center text-red-500">{error.message}</div>;
 
   return (
-    <div className="space-y-6 bg-card rounded-lg p-12 shadow-md">
+    <div className="bg-card space-y-6 rounded-lg p-12 shadow-md">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Users</h1>
-          <p className="mt-2 text-muted-foreground">Manage user accounts from MongoDB</p>
+          <h1 className="text-foreground text-2xl font-bold">Users</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage your user database and accounts
+          </p>
         </div>
-        <Button onClick={() => setIsFormOpen(true)}>Add User</Button>
+        <Button
+          onClick={() => setIsFormOpen(true)}
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          Add New User
+        </Button>
       </div>
-
 
       <DataTable
         columns={columns}
-        data={users}
+        data={allUsers}
         showPagination={true}
+        manualPagination={true}
+        pageCount={totalPages}
+        paginationState={paginationState}
+        onPaginationChange={setPaginationState}
         paginationOptions={{
-          pageSizeOptions: [5, 10, 20, 50],
+          pageSizeOptions: [4, 8, 16, 32],
           showFirstLastButtons: true,
           showSelectedRows: true,
         }}
-        manualPagination
-        pageCount={totalPages}
-        paginationState={pagination}
-        onPaginationChange={handlePaginationChange}
         toolbar={(table) => (
-          <div className="flex items-center w-full space-x-4">
+          <div className="flex w-full items-center space-x-4">
             <DataTableFilter
               table={table}
-              columnKey="gender"
-              placeholder="Filter by gender..."
+              columnKey="email"
+              placeholder="Filter by email..."
               className="max-w-sm"
             />
             <DataTableViewOptions table={table} />
@@ -133,62 +149,42 @@ export default function UsersPage() {
         )}
       />
 
-      {isFormOpen && (
+      {/* Add User Form */}
+      <UserForm open={isFormOpen} onOpenChange={setIsFormOpen} />
+
+      {/* Edit User Form */}
+      {isEditFormOpen && userToEdit && (
         <UserForm
-          open={isFormOpen}
-          onOpenChange={(open) => {
-            setIsFormOpen(open);
-            // Clear any states when form closes
-            if (!open) {
-              setSelectedUser(null);
-            }
-          }}
+          open={isEditFormOpen}
+          onOpenChange={handleEditFormClose}
+          user={userToEdit}
         />
       )}
 
       {/* View User Dialog */}
-      {viewUser && selectedUser && (
+      {isViewUserOpen && selectedUser && (
         <ViewUser
-          open={viewUser}
+          open={isViewUserOpen}
           onOpenChange={handleViewUserClose}
           user={selectedUser}
         />
       )}
 
-      {/* Edit User Dialog */}
-      {editUser && (
-        <UserForm
-          open={editUser}
+      {/* Delete Confirmation Dialog */}
+      {isDeleteDialogOpen && userToDelete && (
+        <DeleteConfirmDialog
+          open={isDeleteDialogOpen}
           onOpenChange={(open) => {
-            setEditUser(open);
-            // Clear selected user when form closes
+            setIsDeleteDialogOpen(open);
             if (!open) {
-              setSelectedUser(null);
+              setUserToDelete(null);
             }
           }}
-          user={selectedUser}
+          onConfirm={confirmDeleteUser}
+          title={`Delete ${userToDelete.firstName} ${userToDelete.lastName}`}
+          message={`Are you sure you want to delete this user? This action cannot be undone.`}
         />
       )}
-
-      {/* Delete User Dialog */}
-      <DeleteConfirmDialog
-        open={deleteUser}
-        onOpenChange={setDeleteUser}
-        title="Confirm Deletion"
-        message="Are you sure you want to delete this user?"
-        confirmText="Delete User"
-        onConfirm={() => {
-          if (selectedUser) {
-            // Use React Query mutation to delete user with MongoDB _id
-            deleteUserMutation.mutate(selectedUser._id);
-          }
-          setSelectedUser(null);
-          setDeleteUser(false);
-        }}
-        onCancel={() => {
-          setSelectedUser(null);
-        }}
-      />
     </div>
-  )
+  );
 }

@@ -50,3 +50,29 @@ export const optionalAuth = (req: Request, res: Response, next: NextFunction): v
 
   next();
 };
+
+// Role-based access control middleware
+export const requireRole = (requiredRole: 'seller' | 'customer') => {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+      return;
+    }
+
+    if (req.user.role !== requiredRole) {
+      res.status(403).json({
+        success: false,
+        message: `Access denied. ${requiredRole} role required.`
+      });
+      return;
+    }
+
+    next();
+  };
+};
+
+// Middleware to require seller role (admin access)
+export const requireSeller = requireRole('seller');

@@ -1,8 +1,6 @@
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { User, Save, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { User, Save } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Form } from '../../components/ui/form';
@@ -24,13 +22,13 @@ export default function ProfilePage() {
       email: user?.email || '',
       mobileNumber: user?.mobileNumber || '',
       birthDate: user?.birthDate ? user.birthDate.split('T')[0] : '', // Convert to YYYY-MM-DD format
-    }
+    },
   });
 
   const {
     handleSubmit,
     formState: { isValid, isDirty },
-    control
+    control,
   } = form;
 
   const onSubmit = async (data: UserFormData) => {
@@ -41,16 +39,16 @@ export default function ProfilePage() {
         mobileNumber: data.mobileNumber,
         birthDate: data.birthDate,
       });
-    } catch (error) {
+    } catch {
       // Error is handled in the mutation
     }
   };
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
           <p className="text-muted-foreground">Loading profile...</p>
         </div>
       </div>
@@ -58,30 +56,31 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-2xl">
+    <div className="bg-background min-h-screen p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto ">
         {/* Header */}
         <div className="mb-6">
-
-          <h1 className="text-3xl font-bold text-foreground">Profile Settings</h1>
+          <h1 className="text-foreground text-3xl font-bold">
+            Profile Settings
+          </h1>
           <p className="text-muted-foreground mt-2">
             Manage your personal information and account settings
           </p>
         </div>
 
         {/* Profile Card */}
-        <Card className="p-6 space-y-6">
+        <Card className="space-y-6 p-6">
           {/* User Avatar Section */}
-          <div className="flex items-center space-x-4 pb-6 border-b border-border">
-            <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-10 w-10 text-primary" />
+          <div className="border-border flex items-center space-x-4 border-b pb-6">
+            <div className="bg-primary/10 flex h-20 w-20 items-center justify-center rounded-full">
+              <User className="text-primary h-10 w-10" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-foreground">
+              <h2 className="text-foreground text-xl font-semibold">
                 {user.firstName} {user.lastName}
               </h2>
               <p className="text-muted-foreground">{user.email}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Member since {new Date(user.createdAt).toLocaleDateString()}
               </p>
             </div>
@@ -90,7 +89,7 @@ export default function ProfilePage() {
           {/* Profile Form */}
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormInput
                   control={control}
                   name="firstName"
@@ -129,26 +128,41 @@ export default function ProfilePage() {
               />
 
               {/* Account Info Section */}
-              <div className="pt-6 border-t border-border">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Account Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="border-border border-t pt-6">
+                <h3 className="text-foreground mb-4 text-lg font-semibold">
+                  Account Information
+                </h3>
+                <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                   <div>
                     <label className="text-muted-foreground">User ID</label>
-                    <p className="text-foreground font-medium">#{user.userId}</p>
+                    <p className="text-foreground font-medium">
+                      #{user.userId}
+                    </p>
                   </div>
                   <div>
-                    <label className="text-muted-foreground">Account Status</label>
-                    <p className={`font-medium ${user.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                    <label className="text-muted-foreground">
+                      Account Type
+                    </label>
+                    <p className="text-foreground font-medium capitalize">
+                      {user.role}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground">
+                      Account Status
+                    </label>
+                    <p
+                      className={`font-medium ${user.isActive ? 'text-green-600' : 'text-red-600'}`}
+                    >
                       {user.isActive ? 'Active' : 'Inactive'}
                     </p>
                   </div>
                   <div>
                     <label className="text-muted-foreground">Last Login</label>
                     <p className="text-foreground font-medium">
-                      {user.lastLogin 
+                      {user.lastLogin
                         ? new Date(user.lastLogin).toLocaleString()
-                        : 'Never'
-                      }
+                        : 'Never'}
                     </p>
                   </div>
                   <div>

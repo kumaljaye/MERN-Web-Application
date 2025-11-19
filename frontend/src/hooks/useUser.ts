@@ -1,19 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchUsers, PaginatedUsersResponse } from '@/apis/user';
+import {
+  fetchUsers,
+  fetchAllUsers,
+  PaginationParams,
+  PaginatedUsersResponse,
+} from '@/apis/user';
 
-interface UseUsersParams {
-  page?: number;
-  limit?: number;
-}
-
-export function useUsers(params: UseUsersParams = {}) {
-  const { page, limit } = params;
-
+export function useUsers(params?: PaginationParams) {
   return useQuery<PaginatedUsersResponse>({
-    queryKey: ['users', { page, limit }],
-    queryFn: () => fetchUsers(page, limit),
-    keepPreviousData: true,
+    queryKey: ['users', params],
+    queryFn: () => fetchUsers(params),
     staleTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
   });
 }
+
+
+

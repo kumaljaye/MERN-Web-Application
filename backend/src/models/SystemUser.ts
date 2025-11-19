@@ -41,6 +41,12 @@ const SystemUserSchema = new Schema<ISystemUser>({
     required: true,
     trim: true
   },
+  role: {
+    type: String,
+    required: true,
+    enum: ['seller', 'customer'],
+    default: 'customer'
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -89,7 +95,7 @@ SystemUserSchema.statics.findByUserId = function(userId: number) {
  * Validation helpers for registration
  */
 SystemUserSchema.statics.validateRegistrationData = function(userData: Partial<ISystemUserInput>): IValidationResult {
-  const { firstName, lastName, email, password, confirmPassword, birthDate, mobileNumber } = userData;
+  const { firstName, lastName, email, password, confirmPassword, birthDate, mobileNumber, role } = userData;
   const missing: string[] = [];
   
   if (!firstName || firstName.trim() === '') missing.push('firstName');
@@ -99,6 +105,7 @@ SystemUserSchema.statics.validateRegistrationData = function(userData: Partial<I
   if (!confirmPassword || confirmPassword.trim() === '') missing.push('confirmPassword');
   if (!birthDate) missing.push('birthDate');
   if (!mobileNumber || mobileNumber.trim() === '') missing.push('mobileNumber');
+  if (!role || !['seller', 'customer'].includes(role)) missing.push('role');
   
   // Additional validations
   if (password && password.length < 6) missing.push('passwordTooShort');

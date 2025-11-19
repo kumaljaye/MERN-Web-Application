@@ -1,19 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchProducts, PaginatedProductsResponse } from '@/apis/products';
+import {
+  fetchProducts,
+  fetchAllProducts,
+  PaginationParams,
+  PaginatedProductsResponse,
+} from '@/apis/products';
 
-interface UseProductsParams {
-  page?: number;
-  limit?: number;
-}
-
-export function useProducts(params: UseProductsParams = {}) {
-  const { page, limit } = params;
-
+export function useProducts(params?: PaginationParams) {
   return useQuery<PaginatedProductsResponse>({
-    queryKey: ['products', { page, limit }],
-    queryFn: () => fetchProducts(page, limit),
-    keepPreviousData: true,
+    queryKey: ['products', params],
+    queryFn: () => fetchProducts(params),
     staleTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
   });
 }
+
+

@@ -9,6 +9,7 @@ export interface SystemUser {
   email: string;
   birthDate: string;
   mobileNumber: string;
+  role: 'seller' | 'customer';
   isActive: boolean;
   lastLogin: Date | null;
   createdAt: Date;
@@ -22,6 +23,7 @@ export interface RegisterData {
   confirmPassword: string;
   birthDate: string;
   mobileNumber: string;
+  role: 'seller' | 'customer';
 }
 
 export interface UpdateProfileData {
@@ -51,31 +53,53 @@ export interface EmailCheckResponse {
 }
 
 // Register a new user
-export const registerUser = async (userData: RegisterData): Promise<AuthResponse> => {
-  const { data } = await apiClient.post<AuthResponse>(`${API_BASE_URL}/api/auth/register`, userData);
+export const registerUser = async (
+  userData: RegisterData
+): Promise<AuthResponse> => {
+  const { data } = await apiClient.post<AuthResponse>(
+    `${API_BASE_URL}/api/auth/register`,
+    userData
+  );
   return data;
 };
 
 // Login user
-export const loginUser = async (loginData: LoginData): Promise<AuthResponse> => {
-  const { data } = await apiClient.post<AuthResponse>(`${API_BASE_URL}/api/auth/login`, loginData);
+export const loginUser = async (
+  loginData: LoginData
+): Promise<AuthResponse> => {
+  const { data } = await apiClient.post<AuthResponse>(
+    `${API_BASE_URL}/api/auth/login`,
+    loginData
+  );
   return data;
 };
 
 // Check email availability
-export const checkEmailAvailability = async (email: string): Promise<EmailCheckResponse> => {
-  const { data } = await apiClient.post<EmailCheckResponse>(`${API_BASE_URL}/api/auth/check-email`, { email });
+export const checkEmailAvailability = async (
+  email: string
+): Promise<EmailCheckResponse> => {
+  const { data } = await apiClient.post<EmailCheckResponse>(
+    `${API_BASE_URL}/api/auth/check-email`,
+    { email }
+  );
   return data;
 };
 
 // Get current user (requires authentication)
 export const getCurrentUser = async (): Promise<AuthResponse> => {
-  const { data } = await apiClient.get<AuthResponse>(`${API_BASE_URL}/api/auth/me`);
+  const { data } = await apiClient.get<AuthResponse>(
+    `${API_BASE_URL}/api/auth/me`
+  );
   return data;
 };
 
 // Update current user profile (requires authentication)
-export const updateProfile = async (profileData: UpdateProfileData): Promise<AuthResponse> => {
-  const { data } = await apiClient.patch<AuthResponse>(`${API_BASE_URL}/api/auth/me`, profileData);
+export const updateProfile = async (
+  profileData: UpdateProfileData
+): Promise<AuthResponse> => {
+  const { data } = await apiClient.patch<AuthResponse>(
+    `${API_BASE_URL}/api/auth/me`,
+    profileData
+  );
   return data;
 };

@@ -53,6 +53,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       password: hashedPassword,
       birthDate: userData.birthDate,
       mobileNumber: userData.mobileNumber,
+      role: userData.role || 'customer',
       isActive: true
     });
 
@@ -66,6 +67,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       email: newUser.email,
       birthDate: newUser.birthDate,
       mobileNumber: newUser.mobileNumber,
+      role: newUser.role,
       isActive: newUser.isActive,
       createdAt: newUser.createdAt
     };
@@ -74,7 +76,8 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     const tokenPayload: TokenPayload = {
       userId: newUser.userId,
       name: `${newUser.firstName} ${newUser.lastName}`,
-      email: newUser.email
+      email: newUser.email,
+      role: newUser.role
     };
     const token = generateToken(tokenPayload);
 
@@ -151,6 +154,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       email: user.email,
       birthDate: user.birthDate,
       mobileNumber: user.mobileNumber,
+      role: user.role,
       isActive: user.isActive,
       lastLogin: user.lastLogin,
       createdAt: user.createdAt
@@ -160,7 +164,8 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     const tokenPayload: TokenPayload = {
       userId: user.userId,
       name: `${user.firstName} ${user.lastName}`,
-      email: user.email
+      email: user.email,
+      role: user.role
     };
     const token = generateToken(tokenPayload);
 
@@ -231,6 +236,7 @@ router.get('/me', authenticateToken, async (req: Request, res: Response): Promis
       email: user.email,
       birthDate: user.birthDate,
       mobileNumber: user.mobileNumber,
+      role: user.role,
       isActive: user.isActive,
       lastLogin: user.lastLogin,
       createdAt: user.createdAt
@@ -255,6 +261,9 @@ router.patch('/me', authenticateToken, async (req: Request, res: Response): Prom
   try {
     const userId = req.user!.userId;
     const { firstName, lastName, mobileNumber, birthDate } = req.body;
+    
+    // Note: role is intentionally excluded from profile updates for security
+    // Only firstName, lastName, mobileNumber, and birthDate can be updated
 
     // Validate that at least one field is provided
     if (!firstName && !lastName && !mobileNumber && !birthDate) {
@@ -295,6 +304,7 @@ router.patch('/me', authenticateToken, async (req: Request, res: Response): Prom
       email: updatedUser.email,
       birthDate: updatedUser.birthDate,
       mobileNumber: updatedUser.mobileNumber,
+      role: updatedUser.role,
       isActive: updatedUser.isActive,
       lastLogin: updatedUser.lastLogin,
       createdAt: updatedUser.createdAt

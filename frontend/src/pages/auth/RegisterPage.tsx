@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { Form } from '../../components/ui/form';
 import { FormInput } from '../../components/customUi/form-input';
+import { FormSelect } from '../../components/customUi/form-select';
 import { useRegister } from '../../hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import { RegisterSchema, RegisterFormData } from '../../schema';
@@ -34,13 +35,14 @@ export default function RegisterPage() {
       confirmPassword: '',
       birthDate: '',
       mobileNumber: '',
-    }
+      role: 'customer' as const,
+    },
   });
 
   const {
     handleSubmit,
     formState: { isValid },
-    control
+    control,
   } = form;
 
   const onSubmit = async (data: RegisterFormData) => {
@@ -51,12 +53,14 @@ export default function RegisterPage() {
   const isLoading = registerMutation.isPending;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <Card className="w-full max-w-md p-6 space-y-6">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <Card className="w-full max-w-2xl space-y-6 p-6">
         <div className="text-center">
-          <UserPlus className="mx-auto h-12 w-12 text-primary" />
-          <h1 className="text-2xl font-bold text-gray-900 mt-4">Create Account</h1>
-          <p className="text-sm text-gray-600 mt-2">
+          <UserPlus className="text-primary mx-auto h-12 w-12" />
+          <h1 className="mt-4 text-2xl font-bold text-gray-900">
+            Create Account
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
             Join us today! Please fill in your information.
           </p>
         </div>
@@ -99,6 +103,17 @@ export default function RegisterPage() {
               placeholder="Enter your mobile number"
             />
 
+            <FormSelect
+              control={control}
+              name="role"
+              label="Account Type"
+              options={[
+                { value: 'customer', label: 'Customer' },
+                { value: 'seller', label: 'Seller' },
+              ]}
+              placeholder="Select your account type"
+            />
+
             <FormInput
               control={control}
               name="password"
@@ -130,7 +145,7 @@ export default function RegisterPage() {
             Already have an account?{' '}
             <Link
               to="/"
-              className="font-medium text-primary hover:text-primary/80"
+              className="text-primary hover:text-primary/80 font-medium"
             >
               Sign in
             </Link>

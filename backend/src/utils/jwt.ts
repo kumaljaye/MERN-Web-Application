@@ -8,6 +8,7 @@ export interface TokenPayload {
   userId: number;
   name: string;
   email: string;
+  role: 'seller' | 'customer';
 }
 
 // Generate JWT token

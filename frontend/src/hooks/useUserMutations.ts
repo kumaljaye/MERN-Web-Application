@@ -14,7 +14,7 @@ export function useAddUser() {
     onSuccess: (data) => {
       // Invalidate and refetch users data
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      
+
       // Use notification data from backend if available
       if (data.notification) {
         const { title, details } = data.notification;
@@ -24,9 +24,11 @@ export function useAddUser() {
       } else {
         // Fallback to client-side message
         const userData = data.user;
-        const userName = userData ? `${userData.firstName} ${userData.lastName}` : 'User';
+        const userName = userData
+          ? `${userData.firstName} ${userData.lastName}`
+          : 'User';
         const userId = userData ? `ID: ${userData.userId}` : '';
-        
+
         toast.success(`✅ ${userName} successfully added!`, {
           description: `${userId} - Account created and ready to use`,
         });
@@ -34,7 +36,7 @@ export function useAddUser() {
     },
     onError: (error: any) => {
       console.error('Error adding user:', error);
-      
+
       // Check if error response has notification data
       if (error?.response?.data?.notification) {
         const { title, message, details } = error.response.data.notification;
@@ -44,7 +46,10 @@ export function useAddUser() {
       } else {
         // Fallback for errors without notification data
         toast.error('❌ Failed to add user', {
-          description: error?.response?.data?.error || error.message || 'An unexpected error occurred',
+          description:
+            error?.response?.data?.error ||
+            error.message ||
+            'An unexpected error occurred',
         });
       }
     },
@@ -56,13 +61,19 @@ export function useUpdateUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, userData }: { id: string; userData: Omit<User, '_id'> }) => {
+    mutationFn: async ({
+      id,
+      userData,
+    }: {
+      id: string;
+      userData: Omit<User, '_id'>;
+    }) => {
       return await updateUser(id, userData);
     },
     onSuccess: (data) => {
       // Invalidate and refetch users data
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      
+
       // Use notification data from backend if available
       if (data.notification) {
         const { title, details } = data.notification;
@@ -72,8 +83,10 @@ export function useUpdateUser() {
       } else {
         // Fallback to client-side message
         const userData = data.user;
-        const userName = userData ? `${userData.firstName} ${userData.lastName}` : 'User';
-        
+        const userName = userData
+          ? `${userData.firstName} ${userData.lastName}`
+          : 'User';
+
         toast.success(`🔄 ${userName} successfully updated!`, {
           description: 'User information has been saved',
         });
@@ -81,7 +94,7 @@ export function useUpdateUser() {
     },
     onError: (error: any) => {
       console.error('Error updating user:', error);
-      
+
       // Check if error response has notification data
       if (error?.response?.data?.notification) {
         const { title, message, details } = error.response.data.notification;
@@ -91,7 +104,10 @@ export function useUpdateUser() {
       } else {
         // Fallback for errors without notification data
         toast.error('❌ Failed to update user', {
-          description: error?.response?.data?.error || error.message || 'An unexpected error occurred',
+          description:
+            error?.response?.data?.error ||
+            error.message ||
+            'An unexpected error occurred',
         });
       }
     },
@@ -109,7 +125,7 @@ export function useDeleteUser() {
     onSuccess: (data) => {
       // Invalidate and refetch users data
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      
+
       // Use notification data from backend if available
       if (data.notification) {
         const { title, details } = data.notification;
@@ -119,16 +135,18 @@ export function useDeleteUser() {
       } else {
         // Fallback to client-side message
         const userData = data.user;
-        const userName = userData ? `${userData.firstName} ${userData.lastName}` : 'User';
-        
-        toast.success(`🗑️ ${userName} successfully deleted!`, {
+        const userName = userData
+          ? `${userData.firstName} ${userData.lastName}`
+          : 'User';
+
+        toast.success(`🗑️ ${userName} : successfully deleted!`, {
           description: 'User account has been permanently removed',
         });
       }
     },
     onError: (error: any) => {
       console.error('Error deleting user:', error);
-      
+
       // Check if error response has notification data
       if (error?.response?.data?.notification) {
         const { title, message, details } = error.response.data.notification;
@@ -138,7 +156,10 @@ export function useDeleteUser() {
       } else {
         // Fallback for errors without notification data
         toast.error('❌ Failed to delete user', {
-          description: error?.response?.data?.error || error.message || 'An unexpected error occurred',
+          description:
+            error?.response?.data?.error ||
+            error.message ||
+            'An unexpected error occurred',
         });
       }
     },

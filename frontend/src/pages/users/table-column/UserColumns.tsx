@@ -1,20 +1,20 @@
-"use client"
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Eye, Edit, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { ColumnDef } from '@tanstack/react-table';
+import { ArrowUpDown, Eye, Edit, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Type definition for user data
 export type User = {
-  _id: string  // MongoDB uses _id field
-  userId: number  // Auto-generated ID starting from 100
-  firstName: string
-  lastName: string
-  email: string
-  birthDate: string
-  gender: string
-}
+  _id: string; // MongoDB uses _id field
+  userId: number; // Auto-generated ID starting from 100
+  firstName: string;
+  lastName: string;
+  email: string;
+  birthDate: string;
+  gender: string;
+};
 
 // Function to create columns with callbacks
 export const createUserColumns = (
@@ -23,12 +23,12 @@ export const createUserColumns = (
   onDeleteClick: (user: User) => void
 ): ColumnDef<User>[] => [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -45,27 +45,27 @@ export const createUserColumns = (
     enableHiding: false,
   },
   {
-    accessorKey: "userId",
+    accessorKey: 'userId',
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         ID
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => {
-      const userId = row.getValue("userId") as number;
+      const userId = row.getValue('userId') as number;
       return <div className="font-mono text-sm font-medium">{userId}</div>;
     },
   },
   {
-    accessorKey: "firstName",
+    accessorKey: 'firstName',
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         First Name
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -73,11 +73,11 @@ export const createUserColumns = (
     ),
   },
   {
-    accessorKey: "lastName",
+    accessorKey: 'lastName',
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Last Name
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -85,14 +85,12 @@ export const createUserColumns = (
     ),
   },
 
-
-
   {
-    accessorKey: "email",
+    accessorKey: 'email',
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Email
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -101,61 +99,64 @@ export const createUserColumns = (
   },
 
   {
-    accessorKey: "birthDate",
+    accessorKey: 'birthDate',
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         Birth Date
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => {
-      const date = new Date(row.getValue("birthDate"))
-      const formatted = date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-      return <div>{formatted}</div>
+      const date = new Date(row.getValue('birthDate'));
+      const formatted = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+      return <div>{formatted}</div>;
     },
   },
   {
-    accessorKey: "gender",
-    header: "Gender",
+    accessorKey: 'gender',
+    header: 'Gender',
     filterFn: (row, id, value) => {
-      return row.getValue<string>(id).toLowerCase().includes(value.toLowerCase())
+      return row
+        .getValue<string>(id)
+        .toLowerCase()
+        .includes(value.toLowerCase());
     },
   },
-    {
-    id: "actions",
+  {
+    id: 'actions',
     header: () => <div className="text-center">Actions</div>,
     cell: ({ row }) => {
-      const user = row.original
+      const user = row.original;
 
       return (
         <div className="flex items-center justify-end gap-2">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             className="h-8 w-8 p-0"
             onClick={() => onViewClick(user)}
           >
             <span className="sr-only">View user</span>
             <Eye className="h-4 w-4" />
           </Button>
-          
-          <Button 
-            variant="ghost" 
+
+          <Button
+            variant="ghost"
             className="h-8 w-8 p-0"
             onClick={() => onEditClick(user)}
           >
             <span className="sr-only">Edit user</span>
             <Edit className="h-4 w-4" />
           </Button>
-          
-          <Button 
-            variant="ghost" 
+
+          <Button
+            variant="ghost"
             className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
             onClick={() => onDeleteClick(user)}
           >
@@ -163,7 +164,7 @@ export const createUserColumns = (
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-      )
+      );
     },
   },
-]
+];

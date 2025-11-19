@@ -1,29 +1,29 @@
-import { Table } from "@tanstack/react-table"
+import { Table } from '@tanstack/react-table';
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-} from "lucide-react"
+} from 'lucide-react';
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select';
 
 interface DataTablePaginationProps<TData> {
-  table: Table<TData>
+  table: Table<TData>;
   // Customizable pagination options
-  pageSizeOptions?: number[]
-  showRowsPerPage?: boolean
-  showFirstLastButtons?: boolean
-  showPageInfo?: boolean
-  showSelectedRows?: boolean
-  className?: string
+  pageSizeOptions?: number[];
+  showRowsPerPage?: boolean;
+  showFirstLastButtons?: boolean;
+  showPageInfo?: boolean;
+  showSelectedRows?: boolean;
+  className?: string;
 }
 
 export function DataTablePagination<TData>({
@@ -33,19 +33,19 @@ export function DataTablePagination<TData>({
   showFirstLastButtons = true,
   showPageInfo = true,
   showSelectedRows = true,
-  className = "",
+  className = '',
 }: DataTablePaginationProps<TData>) {
   return (
     <div className={`flex items-center justify-between px-2 ${className}`}>
       {showSelectedRows && (
         <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredSelectedRowModel().rows.length} of{' '}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
       )}
-      
+
       {!showSelectedRows && <div className="flex-1"></div>}
-      
+
       <div className="flex items-center space-x-6 lg:space-x-8">
         {showRowsPerPage && (
           <div className="flex items-center space-x-2">
@@ -53,11 +53,13 @@ export function DataTablePagination<TData>({
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
-                table.setPageSize(Number(value))
+                table.setPageSize(Number(value));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={table.getState().pagination.pageSize} />
+                <SelectValue
+                  placeholder={table.getState().pagination.pageSize}
+                />
               </SelectTrigger>
               <SelectContent side="top">
                 {pageSizeOptions.map((pageSize) => (
@@ -69,14 +71,14 @@ export function DataTablePagination<TData>({
             </Select>
           </div>
         )}
-        
+
         {showPageInfo && (
           <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            Page {table.getState().pagination.pageIndex + 1} of{' '}
             {table.getPageCount()}
           </div>
         )}
-        
+
         <div className="flex items-center space-x-2">
           {showFirstLastButtons && (
             <Button
@@ -90,7 +92,7 @@ export function DataTablePagination<TData>({
               <ChevronsLeft />
             </Button>
           )}
-          
+
           <Button
             variant="outline"
             size="icon"
@@ -101,7 +103,7 @@ export function DataTablePagination<TData>({
             <span className="sr-only">Go to previous page</span>
             <ChevronLeft />
           </Button>
-          
+
           <Button
             variant="outline"
             size="icon"
@@ -112,7 +114,7 @@ export function DataTablePagination<TData>({
             <span className="sr-only">Go to next page</span>
             <ChevronRight />
           </Button>
-          
+
           {showFirstLastButtons && (
             <Button
               variant="outline"
@@ -128,5 +130,5 @@ export function DataTablePagination<TData>({
         </div>
       </div>
     </div>
-  )
+  );
 }

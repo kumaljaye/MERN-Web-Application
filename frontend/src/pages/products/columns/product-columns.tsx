@@ -1,10 +1,11 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { Eye } from 'lucide-react';
+import { Eye, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 // Type definition for your product data
 export type Product = {
@@ -16,10 +17,17 @@ export type Product = {
   price: number;
 };
 
-// Function to create columns with callback
+// Function to create columns with callbacks
 export const createColumns = (
-  onViewClick: (product: Product) => void
-): ColumnDef<Product>[] => [
+  onViewClick: (product: Product) => void,
+  onEditClick: (product: Product) => void,
+  onDeleteClick: (product: Product) => void
+): ColumnDef<Product>[] => {
+  // Get user role for conditional rendering
+  const { user } = useAuthContext();
+  const isSeller = user?.role === 'seller';
+
+  return [
   {
     id: 'select',
     header: ({ table }) => (
@@ -91,20 +99,43 @@ export const createColumns = (
   },
   {
     id: 'actions',
-    header: 'View',
+    header: 'Actions',
     cell: ({ row }) => {
       const product = row.original;
 
       return (
-        <Button
-          variant="ghost"
-          className="h-8 w-8 p-0"
-          onClick={() => onViewClick(product)}
-        >
-          <span className="sr-only">View product</span>
-          <Eye className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0"
+            onClick={() => onViewClick(product)}
+          >
+            <span className="sr-only">View product</span>
+            <Eye className="h-4 w-4" />
+          </Button>
+          {isSeller && (
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0"
+              onClick={() => onEditClick(product)}
+            >
+              <span className="sr-only">Edit product</span>
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {isSeller && (
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+              onClick={() => onDeleteClick(product)}
+            >
+              <span className="sr-only">Delete product</span>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       );
     },
   },
 ];
+};

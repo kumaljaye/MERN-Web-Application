@@ -12,14 +12,7 @@ const router = express.Router();
 router.use(authenticateToken);
 router.use(requireSeller);
 
-/**
- * GET /users - Get all users with pagination
- * Query parameters:
- *   - page: page number (default: 1)
- *   - limit: items per page (default: 10)
- *   - sortBy: field to sort by (default: userId)
- *   - sortOrder: asc or desc (default: desc)
- */
+
 router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;

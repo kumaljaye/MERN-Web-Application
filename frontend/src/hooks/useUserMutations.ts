@@ -45,7 +45,7 @@ export function useAddUser() {
         });
       } else {
         // Fallback for errors without notification data
-        toast.error('❌ Failed to add user', {
+        toast.error('Failed to add user', {
           description:
             error?.response?.data?.error ||
             error.message ||
@@ -103,7 +103,7 @@ export function useUpdateUser() {
         });
       } else {
         // Fallback for errors without notification data
-        toast.error('❌ Failed to update user', {
+        toast.error('Failed to update user', {
           description:
             error?.response?.data?.error ||
             error.message ||

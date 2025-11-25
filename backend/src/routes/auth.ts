@@ -216,45 +216,45 @@ router.post('/check-email', async (req: Request, res: Response): Promise<void> =
 });
 
 // Get current user endpoint (protected)
-router.get('/me', authenticateToken, async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = await SystemUser.findOne({ userId: req.user!.userId });
+// router.get('/me', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const user = await SystemUser.findOne({ userId: req.user!.userId });
 
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-      return;
-    }
+//     if (!user) {
+//       res.status(404).json({
+//         success: false,
+//         message: 'User not found'
+//       });
+//       return;
+//     }
 
-    // Return user data without password
-    const userResponse = {
-      userId: user.userId,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      birthDate: user.birthDate,
-      mobileNumber: user.mobileNumber,
-      role: user.role,
-      isActive: user.isActive,
-      lastLogin: user.lastLogin,
-      createdAt: user.createdAt
-    };
+//     // Return user data without password
+//     const userResponse = {
+//       userId: user.userId,
+//       firstName: user.firstName,
+//       lastName: user.lastName,
+//       email: user.email,
+//       birthDate: user.birthDate,
+//       mobileNumber: user.mobileNumber,
+//       role: user.role,
+//       isActive: user.isActive,
+//       lastLogin: user.lastLogin,
+//       createdAt: user.createdAt
+//     };
 
-    res.status(200).json({
-      success: true,
-      data: userResponse
-    });
+//     res.status(200).json({
+//       success: true,
+//       data: userResponse
+//     });
 
-  } catch (error) {
-    console.error('Get user error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-  }
-});
+//   } catch (error) {
+//     console.error('Get user error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Internal server error'
+//     });
+//   }
+// });
 
 // Update current user profile endpoint (protected)
 router.patch('/me', authenticateToken, async (req: Request, res: Response): Promise<void> => {

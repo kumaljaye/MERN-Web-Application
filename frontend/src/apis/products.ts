@@ -42,6 +42,48 @@ export async function fetchProducts(
   }
 }
 
+export interface ProductData {
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+}
+
+export interface ApiResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+}
+
+// Add new product
+export const addProduct = async (productData: ProductData): Promise<ApiResponse> => {
+  const { data } = await apiClient.post<ApiResponse>(
+    `${API_BASE_URL}/api/products`,
+    productData
+  );
+  return data;
+};
+
+// Update product
+export const updateProduct = async (
+  productId: number,
+  productData: ProductData
+): Promise<ApiResponse> => {
+  const { data } = await apiClient.put<ApiResponse>(
+    `${API_BASE_URL}/api/products/${productId}`,
+    productData
+  );
+  return data;
+};
+
+// Delete product
+export const deleteProduct = async (productId: number): Promise<ApiResponse> => {
+  const { data } = await apiClient.delete<ApiResponse>(
+    `${API_BASE_URL}/api/products/${productId}`
+  );
+  return data;
+};
+
 // Keep the old function for backward compatibility (returns all products)
 export async function fetchAllProducts(): Promise<any[]> {
   try {

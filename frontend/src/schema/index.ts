@@ -71,7 +71,28 @@ export const RegisterSchema = z
     path: ['confirmPassword'],
   });
 
+// Product Schema
+export const ProductSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'Product name is required')
+    .max(100, 'Product name cannot exceed 100 characters'),
+  description: z
+    .string()
+    .min(10, 'Description must be at least 10 characters')
+    .max(500, 'Description cannot exceed 500 characters'),
+  category: z.string().min(1, 'Category is required'),
+  price: z
+    .string()
+    .min(1, 'Price is required')
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: 'Price must be a valid positive number',
+    })
+    .transform((val) => Number(val)),
+});
+
 // Type exports
 export type UserFormData = z.infer<typeof UserSchema>;
 export type LoginFormData = z.infer<typeof LoginSchema>;
 export type RegisterFormData = z.infer<typeof RegisterSchema>;
+export type ProductFormData = z.infer<typeof ProductSchema>;

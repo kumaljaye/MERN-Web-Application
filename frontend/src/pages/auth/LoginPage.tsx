@@ -97,7 +97,7 @@ export default function LoginPage() {
             </Link>
           </p>
           <Link
-            to="/forgot-password"
+            to=""
             className="hover:text-primary block text-sm text-gray-600"
           >
             Forgot your password?

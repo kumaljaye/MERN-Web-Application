@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   fetchProducts,
-  fetchAllProducts,
   PaginationParams,
   PaginatedProductsResponse,
 } from '@/apis/products';

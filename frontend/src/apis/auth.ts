@@ -86,12 +86,12 @@ export const checkEmailAvailability = async (
 };
 
 // Get current user (requires authentication)
-export const getCurrentUser = async (): Promise<AuthResponse> => {
-  const { data } = await apiClient.get<AuthResponse>(
-    `${API_BASE_URL}/api/auth/me`
-  );
-  return data;
-};
+// export const getCurrentUser = async (): Promise<AuthResponse> => {
+//   const { data } = await apiClient.get<AuthResponse>(
+//     `${API_BASE_URL}/api/auth/me`
+//   );
+//   return data;
+// };
 
 // Update current user profile (requires authentication)
 export const updateProfile = async (

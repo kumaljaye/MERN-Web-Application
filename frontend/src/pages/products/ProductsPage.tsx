@@ -5,11 +5,32 @@ import ViewProduct from './model/view-product';
 import { useProducts } from '@/hooks/useProducts';
 import { DataTableFilter } from '@/components/data-table/data-table-filter';
 import { DataTableViewOptions } from '@/components/data-table/data-table-view-options';
+import { Button } from '@/components/ui/button';
+import DeleteConfirmDialog from '../../components/customUi/DeleteConfirmDialog';
+import ProductForm from '@/pages/products/forms/ProductForm';
+import { useDeleteProduct } from '@/hooks/useProductMutations';
 import { PaginationState } from '@tanstack/react-table';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 export default function ProductsPage() {
+  // Get user role for conditional rendering
+  const { user } = useAuthContext();
+  const isSeller = user?.role === 'seller';
+
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [viewProduct, setViewProduct] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Delete confirmation dialog state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+
+  // Edit form state
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+
+  // Delete product mutation
+  const deleteProductMutation = useDeleteProduct();
 
   // Pagination state
   const [paginationState, setPaginationState] = useState<PaginationState>({
@@ -45,8 +66,34 @@ export default function ProductsPage() {
     }
   };
 
-  // Create columns with the callback
-  const columns = createColumns(handleViewClick);
+  // Handle edit button click
+  const handleEditClick = (product: Product) => {
+    setProductToEdit(product);
+    setIsEditFormOpen(true);
+  };
+
+  // Handle delete button click
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product);
+    setIsDeleteDialogOpen(true);
+  };
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = async () => {
+    if (productToDelete) {
+      await deleteProductMutation.mutateAsync(productToDelete.productId);
+      setIsDeleteDialogOpen(false);
+      setProductToDelete(null);
+    }
+  };
+
+  // Handle add product button click
+  const handleAddProduct = () => {
+    setIsFormOpen(true);
+  };
+
+  // Create columns with callbacks
+  const columns = createColumns(handleViewClick, handleEditClick, handleDeleteClick);
 
   if (isLoading) return <div className="p-10 text-center">Loading...</div>;
   if (error)
@@ -61,6 +108,11 @@ export default function ProductsPage() {
             Manage your product catalog and inventory
           </p>
         </div>
+        {isSeller && (
+          <Button onClick={handleAddProduct} className="ml-4">
+            Add Product
+          </Button>
+        )}
       </div>
 
       <DataTable
@@ -97,6 +149,30 @@ export default function ProductsPage() {
           product={selectedProduct}
         />
       )}
+
+      {/* Add Product Form Dialog */}
+      <ProductForm
+        isOpen={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        mode="create"
+      />
+
+      {/* Edit Product Form Dialog */}
+      <ProductForm
+        isOpen={isEditFormOpen}
+        onOpenChange={setIsEditFormOpen}
+        product={productToEdit}
+        mode="edit"
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`}
+      />
     </div>
   );
 }

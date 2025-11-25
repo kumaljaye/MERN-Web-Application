@@ -48,13 +48,13 @@ export function useDashboardData() {
     const totalProducts = safeProducts.length;
     const totalUsers = safeUsers.length;
 
-    // Calculate real average price from products
+    // Calculate real average price from products (no decimals)
     const averagePrice =
       safeProducts.length > 0
-        ? safeProducts.reduce(
+        ? Math.round(safeProducts.reduce(
             (sum: number, product: any) => sum + (product.price || 0),
             0
-          ) / safeProducts.length
+          ) / safeProducts.length)
         : 0;
 
     // Get unique categories count

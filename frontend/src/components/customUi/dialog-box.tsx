@@ -26,16 +26,16 @@ const FormDialog = ({
 }: CardWrapperProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 sm:max-w-[525px]">
-        <Card className="border-0 shadow-none">
-          <CardHeader>
+      <DialogContent className="p-0 sm:max-w-[625px] max-h-[98vh] flex flex-col">
+        <Card className="border-0 shadow-none flex flex-col h-full">
+          <CardHeader className="shrink-0">
             <DialogHeader label={label} title={title} />
           </CardHeader>
 
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 flex-1 overflow-y-auto pt-6">
             {children && children}
           </CardContent>
-          <CardFooter></CardFooter>
+          <CardFooter className="shrink-0"></CardFooter>
         </Card>
       </DialogContent>
     </Dialog>

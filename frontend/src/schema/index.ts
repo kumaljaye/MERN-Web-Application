@@ -89,6 +89,7 @@ export const ProductSchema = z.object({
       message: 'Price must be a valid positive number',
     })
     .transform((val) => Number(val)),
+  image: z.string().optional(),
 });
 
 // Type exports

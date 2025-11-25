@@ -99,9 +99,16 @@ export function FormWrapper({
       onOpenChange={onOpenChange}
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <div className="space-y-8">{children(form)}</div>
-          <Button type="submit">{finalSubmitButtonText}</Button>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col h-full">
+          {/* Scrollable Form Fields */}
+          <div className="max-h-[60vh] overflow-y-auto space-y-8 pr-2">
+            {children(form)}
+          </div>
+          
+          {/* Fixed Submit Button */}
+          <div className="border-t pt-4 mt-4">
+            <Button type="submit" className="w-full">{finalSubmitButtonText}</Button>
+          </div>
         </form>
       </Form>
     </FormDialog>

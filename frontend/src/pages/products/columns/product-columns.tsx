@@ -15,6 +15,7 @@ export type Product = {
   description: string;
   category: string;
   price: number;
+  image?: string;
 };
 
 // Function to create columns with callbacks
@@ -56,6 +57,29 @@ export const createColumns = (
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ID" />
     ),
+  },
+  {
+    accessorKey: 'image',
+    header: 'Image',
+    cell: ({ row }) => {
+      const image = row.getValue('image') as string;
+      return (
+        <div className="w-16 h-16">
+          {image ? (
+            <img
+              src={image}
+              alt={`${row.getValue('name')} image`}
+              className="w-full h-full object-cover rounded border"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded border flex items-center justify-center">
+              <span className="text-gray-400 text-xs">No image</span>
+            </div>
+          )}
+        </div>
+      );
+    },
+    enableSorting: false,
   },
   {
     accessorKey: 'name',

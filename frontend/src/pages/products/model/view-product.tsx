@@ -2,6 +2,7 @@
 
 import FormDialog from '@/components/customUi/dialog-box';
 import { Button } from '@/components/ui/button';
+import { ImageViewer } from '@/components/customUi';
 import { Product } from '../columns/product-columns';
 
 interface ViewProductProps {
@@ -28,6 +29,22 @@ const ViewProduct = ({
       label: 'Product ID',
       key: 'productId' as keyof Product,
       render: (value: any) => value,
+    },
+    {
+      label: 'Product Image',
+      key: 'image' as keyof Product,
+      render: (value: any) => (
+        <div className="flex justify-center">
+          <ImageViewer
+            src={value}
+            alt={`${product.name} - Product Image`}
+            width="w-48"
+            height="h-48"
+            showPlaceholder={true}
+          />
+        </div>
+      ),
+      className: 'flex justify-center',
     },
     {
       label: 'Title',
@@ -67,22 +84,25 @@ const ViewProduct = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <div className="space-y-6">
-        {productFields.map((field) => (
-          <div key={field.key} className="space-y-2">
-            <label className="text-sm font-medium ">
-              {field.label}
-            </label>
-            <div
-              className={`rounded-md border bg-muted p-3 ${field.className || ''}`}
-            >
-              {field.render(product[field.key])}
+      <div className="flex flex-col h-full ">
+        {/* Scrollable Content Area */}
+        <div className="max-h-[60vh] overflow-y-auto space-y-6 pr-2">
+          {productFields.map((field) => (
+            <div key={field.key} className="space-y-2">
+              <label className="text-sm font-medium ">
+                {field.label}
+              </label>
+              <div
+                className={`rounded-md border bg-muted p-3 ${field.className || ''}`}
+              >
+                {field.render(product[field.key])}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 border-t pt-4">
+        {/* Fixed Action Buttons */}
+        <div className="flex justify-end gap-3 border-t pt-4 mt-4">
           <Button variant="outline" onClick={() => onOpenChange?.(false)}>
             Close
           </Button>

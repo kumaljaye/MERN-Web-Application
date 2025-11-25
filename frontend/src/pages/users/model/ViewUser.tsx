@@ -28,20 +28,23 @@ const ViewUser = ({ open = false, onOpenChange, user }: ViewUserProps) => {
       open={open}
       onOpenChange={onOpenChange}
     >
-      <div className="space-y-3">
-        {userFields.map((field) => (
-          <div key={field.key} className="space-y-2">
-            <label className="text-sm font-medium ">
-              {field.label}
-            </label>
-            <div className="rounded-md border bg-muted p-3">
-              {user[field.key]}
+      <div className="flex flex-col h-full">
+        {/* Scrollable Content Area */}
+        <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-2">
+          {userFields.map((field) => (
+            <div key={field.key} className="space-y-2">
+              <label className="text-sm font-medium ">
+                {field.label}
+              </label>
+              <div className="rounded-md border bg-muted p-3">
+                {user[field.key]}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 border-t pt-4">
+        {/* Fixed Action Buttons */}
+        <div className="flex justify-end gap-3 border-t pt-4 mt-4">
           <Button variant="outline" onClick={() => onOpenChange?.(false)}>
             Close
           </Button>

@@ -18,7 +18,7 @@ export interface IProduct extends Document {
   description: string;
   category: string;
   price: number;
-  inStock: boolean;
+  image?: string;
   createdAt: Date;
   updatedAt: Date;
   getFormattedPrice(): string;

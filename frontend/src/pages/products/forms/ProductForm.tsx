@@ -8,6 +8,7 @@ import { FormWrapper } from '@/components/customUi/form-wrapper';
 import { FormInput } from '@/components/customUi/form-input';
 import { FormSelect } from '@/components/customUi/form-select';
 import { FormTextarea } from '@/components/customUi/form-textarea';
+import { ImageUpload } from '@/components/customUi';
 
 type ProductFormData = z.infer<typeof ProductSchema>;
 
@@ -46,6 +47,7 @@ export default function ProductForm({
     description: product?.description || '',
     category: product?.category || '',
     price: product?.price?.toString() || '',
+    image: product?.image || '',
   };
 
   // Prepare initialData with proper string formatting for edit mode
@@ -54,6 +56,7 @@ export default function ProductForm({
     description: product.description,
     category: product.category,
     price: product.price.toString(), // Ensure price is string for form validation
+    image: product.image || '',
   } : undefined;
 
   const handleSubmit = async (data: ProductFormData) => {
@@ -109,6 +112,15 @@ export default function ProductForm({
             type="number"
             placeholder="Enter price"
           />
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Product Image</label>
+            <ImageUpload
+              value={form.watch('image')}
+              onChange={(url: string) => form.setValue('image', url)}
+              onRemove={() => form.setValue('image', '')}
+            />
+          </div>
         </>
       )}
     </FormWrapper>

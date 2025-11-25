@@ -30,6 +30,10 @@ const ProductSchema = new Schema<IProduct>({
     required: true,
     min: 0
   },
+  image: {
+    type: String,
+    required: false
+  },
 
 }, {
   timestamps: true

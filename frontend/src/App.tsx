@@ -6,7 +6,7 @@ import UsersPage from '@/pages/users/UsersPage'
 import ProfilePage from '@/pages/profile/ProfilePage'
 import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
-import UnauthorizedPage from '@/pages/UnauthorizedPage'
+import UnauthorizedPage from '@/pages/auth/UnauthorizedPage'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { RoleProtectedRoute } from '@/components/RoleProtectedRoute'
 

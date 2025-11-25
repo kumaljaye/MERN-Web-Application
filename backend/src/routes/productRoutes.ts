@@ -87,7 +87,8 @@ router.post('/', authenticateToken, requireSeller, async (req: Request, res: Res
       name,
       description,
       price: Number(price),
-      category
+      category,
+      image: image || undefined
     });
 
     const savedProduct = await newProduct.save();
@@ -110,7 +111,7 @@ router.post('/', authenticateToken, requireSeller, async (req: Request, res: Res
 router.put('/:id', authenticateToken, requireSeller, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, description, price, category } = req.body;
+    const { name, description, price, category, image } = req.body;
 
     // Validate required fields
     if (!name || !price || !category) {
@@ -128,6 +129,7 @@ router.put('/:id', authenticateToken, requireSeller, async (req: Request, res: R
         description,
         price: Number(price),
         category,
+        image: image || undefined,
         updatedAt: new Date()
       },
       { new: true, runValidators: true }

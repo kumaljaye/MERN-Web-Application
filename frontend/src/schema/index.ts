@@ -35,6 +35,8 @@ export const UserSchema = z.object({
       message: 'Please select a valid gender',
     })
     .optional(),
+  
+  image: z.string().optional(),
 });
 
 // Authentication Schemas

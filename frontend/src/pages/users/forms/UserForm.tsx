@@ -7,6 +7,7 @@ import { useAddUser, useUpdateUser } from '@/hooks/useUserMutations';
 import { FormWrapper } from '@/components/customUi/form-wrapper';
 import { FormInput } from '@/components/customUi/form-input';
 import { FormSelect } from '@/components/customUi/form-select';
+import { S3ImageUpload } from '@/components/customUi';
 
 interface UserFormProps {
   open?: boolean;
@@ -32,6 +33,7 @@ const UserForm = ({ open = false, onOpenChange, user }: UserFormProps) => {
     email: '',
     birthDate: '',
     gender: undefined,
+    image: '',
   };
 
   // Handle form submission
@@ -60,6 +62,7 @@ const UserForm = ({ open = false, onOpenChange, user }: UserFormProps) => {
         email: user.email,
         birthDate: user.birthDate,
         gender: user.gender,
+        image: user.image || '',
       }
     : undefined;
 
@@ -114,6 +117,15 @@ const UserForm = ({ open = false, onOpenChange, user }: UserFormProps) => {
             options={genderOptions}
             placeholder="Select gender"
           />
+          
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Profile Image</label>
+            <S3ImageUpload
+              value={form.watch('image')}
+              onChange={(url: string) => form.setValue('image', url)}
+              onRemove={() => form.setValue('image', '')}
+            />
+          </div>
         </>
       )}
     </FormWrapper>

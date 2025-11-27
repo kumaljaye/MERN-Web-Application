@@ -14,6 +14,7 @@ export type User = {
   email: string;
   birthDate: string;
   gender: string;
+  image?: string;
 };
 
 // Function to create columns with callbacks
@@ -59,6 +60,30 @@ export const createUserColumns = (
       const userId = row.getValue('userId') as number;
       return <div className="font-mono text-sm font-medium">{userId}</div>;
     },
+  },
+  {
+    accessorKey: 'image',
+    header: 'Profile Image',
+    cell: ({ row }) => {
+      const image = row.getValue('image') as string;
+      const firstName = row.getValue('firstName') as string;
+      return (
+        <div className="w-16 h-16">
+          {image ? (
+            <img
+              src={image}
+              alt={`${firstName} profile`}
+              className="w-full h-full object-cover rounded-full border"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded-full border flex items-center justify-center">
+              <span className="text-gray-400 text-xs">No image</span>
+            </div>
+          )}
+        </div>
+      );
+    },
+    enableSorting: false,
   },
   {
     accessorKey: 'firstName',

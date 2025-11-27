@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import {
   Card,
   CardContent,
@@ -27,6 +27,8 @@ const FormDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="p-0 sm:max-w-[625px] max-h-[98vh] flex flex-col">
+        <DialogTitle className="sr-only">{title}</DialogTitle>
+        <DialogDescription className="sr-only">{label}</DialogDescription>
         <Card className="border-0 shadow-none flex flex-col h-full">
           <CardHeader className="shrink-0">
             <DialogHeader label={label} title={title} />

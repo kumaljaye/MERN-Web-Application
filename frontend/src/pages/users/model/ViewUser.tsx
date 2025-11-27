@@ -2,6 +2,7 @@
 
 import FormDialog from '@/components/customUi/dialog-box';
 import { Button } from '@/components/ui/button';
+import { ImageViewer } from '@/components/customUi';
 import { User } from '../table-column/UserColumns';
 
 interface ViewUserProps {
@@ -14,12 +15,31 @@ const ViewUser = ({ open = false, onOpenChange, user }: ViewUserProps) => {
   // Define user fields for display
   const userFields = [
     { label: 'User ID', key: 'userId' as keyof User },
+    {
+      label: 'Profile Image',
+      key: 'image' as keyof User,
+      render: (value: any) => (
+        <div className="flex justify-center">
+          <ImageViewer
+            src={value}
+            alt={`${user.firstName} ${user.lastName} - Profile Image`}
+            width="w-32"
+            height="h-32"
+            showPlaceholder={true}
+          />
+        </div>
+      ),
+    },
     { label: 'First Name', key: 'firstName' as keyof User },
     { label: 'Last Name', key: 'lastName' as keyof User },
     { label: 'Email', key: 'email' as keyof User },
     { label: 'Birthdate', key: 'birthDate' as keyof User },
     { label: 'Gender', key: 'gender' as keyof User },
-  ];
+  ] as Array<{
+    label: string;
+    key: keyof User;
+    render?: (value: any) => React.ReactNode;
+  }>;
 
   return (
     <FormDialog
@@ -37,7 +57,7 @@ const ViewUser = ({ open = false, onOpenChange, user }: ViewUserProps) => {
                 {field.label}
               </label>
               <div className="rounded-md border bg-muted p-3">
-                {user[field.key]}
+                {'render' in field && field.render ? field.render(user[field.key]) : user[field.key]}
               </div>
             </div>
           ))}

@@ -7,6 +7,7 @@ export { FormWrapper } from './form-wrapper';
 // UI Components
 export { default as ImageUpload } from './image-upload';
 export { default as ImageViewer } from './image-viewer';
+export { default as S3ImageUpload } from './s3-image-upload';
 
 // Re-export for convenience
 export { Button } from '@/components/ui/button';

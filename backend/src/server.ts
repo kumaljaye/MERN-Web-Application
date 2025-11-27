@@ -5,10 +5,11 @@ import { connectDatabase } from '@/config/database';
 import userRoutes from '@/routes/userRoutes';
 import productRoutes from '@/routes/productRoutes';
 import authRoutes from '@/routes/auth';
+import uploadRoutes from '@/routes/uploadRoutes';
 import { createErrorResponse } from '@/types/response';
 
 const app: Application = express();
-const PORT: number = parseInt(process.env.PORT || '5000', 10);
+const PORT: number = parseInt(process.env.PORT || '3000', 10);
 
 // Middleware
 app.use(cors({
@@ -44,6 +45,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // 404 handler for undefined routes - must be last
 app.use((req: Request, res: Response) => {

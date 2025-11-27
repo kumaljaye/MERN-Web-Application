@@ -7,6 +7,7 @@ export interface IUser extends Document {
   email: string;
   birthDate: string;
   gender: 'Male' | 'Female' | 'Other';
+  image?: string;
   createdAt: Date;
   updatedAt: Date;
   getFullName(): string;
@@ -51,6 +52,7 @@ export interface IUserInput {
   email: string;
   birthDate: string;
   gender: 'Male' | 'Female' | 'Other';
+  image?: string;
 }
 
 export interface ISystemUserInput {

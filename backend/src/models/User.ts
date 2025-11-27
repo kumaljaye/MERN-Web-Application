@@ -35,6 +35,10 @@ const UserSchema = new Schema<IUser>({
     type: String,
     required: true,
     enum: ['Male', 'Female', 'Other']
+  },
+  image: {
+    type: String,
+    required: false
   }
 }, {
   timestamps: true

@@ -139,7 +139,7 @@ export function useDeleteUser() {
           ? `${userData.firstName} ${userData.lastName}`
           : 'User';
 
-        toast.success(`🗑️ ${userName} : successfully deleted!`, {
+        toast.success(` ${userName} : successfully deleted!`, {
           description: 'User account has been permanently removed',
         });
       }
@@ -155,7 +155,7 @@ export function useDeleteUser() {
         });
       } else {
         // Fallback for errors without notification data
-        toast.error('❌ Failed to delete user', {
+        toast.error(' Failed to delete user', {
           description:
             error?.response?.data?.error ||
             error.message ||

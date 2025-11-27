@@ -64,7 +64,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
  */
 router.post('/', async (req: Request<{}, any, IUserInput>, res: Response): Promise<void> => {
   try {
-    const { firstName, lastName, email, birthDate, gender } = req.body;
+    const { firstName, lastName, email, birthDate, gender, image } = req.body;
     
     // Validate required fields
     const validation = UserModel.validateUserData(req.body);
@@ -101,7 +101,8 @@ router.post('/', async (req: Request<{}, any, IUserInput>, res: Response): Promi
       lastName: lastName.trim(),
       email: email.toLowerCase().trim(),
       birthDate,
-      gender
+      gender,
+      image: image || undefined
     });
 
     const savedUser = await newUser.save();
@@ -139,7 +140,7 @@ router.post('/', async (req: Request<{}, any, IUserInput>, res: Response): Promi
 router.put('/:id', async (req: Request<{ id: string }, any, IUserInput>, res: Response): Promise<void> => {
   try {
     const userId = req.params.id;
-    const { firstName, lastName, email, birthDate, gender } = req.body;
+    const { firstName, lastName, email, birthDate, gender, image } = req.body;
 
     // Validate required fields
     const validation = UserModel.validateUserData(req.body);
@@ -176,7 +177,8 @@ router.put('/:id', async (req: Request<{ id: string }, any, IUserInput>, res: Re
         lastName: lastName.trim(),
         email: email.toLowerCase().trim(),
         birthDate,
-        gender
+        gender,
+        image: image || undefined
       },
       { new: true, runValidators: true }
     );

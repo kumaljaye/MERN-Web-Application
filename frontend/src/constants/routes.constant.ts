@@ -3,6 +3,7 @@ export const ROUTES = {
   PRODUCTS: '/products',
   USERS: '/users',
   PROFILE: '/profile',
+  INQUIRY: '/inquiry',
   LOGIN: '/',
   REGISTER: '/register',
 } as const;

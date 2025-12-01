@@ -22,12 +22,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { MessageSquareIcon } from 'lucide-react';
+import { all } from 'axios';
 
 const allNavigation = [
   { name: 'Home', href: '/dashboard', icon: HomeIcon },
   { name: 'Products', href: '/products', icon: ShoppingBagIcon },
   { name: 'Users', href: '/users', icon: UsersIcon, allowedRoles: ['seller'] },
   { name: 'Profile', href: '/profile', icon: UserCircleIcon },
+  { name : 'Inquiry', href: '/inquiry', icon: MessageSquareIcon, allowedRoles: ['customer'] }
 ];
 
 export default function DashboardLayout() {

@@ -2,16 +2,38 @@
 
 import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes.constant';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-
-const navigation = [
-  { name: 'Home', href: ROUTES.HOME },
-  { name: 'Products', href: ROUTES.PRODUCTS },
-  { name: 'Users', href: ROUTES.USERS },
-];
 
 export default function Navigation() {
   const location = useLocation();
+  const { user } = useAuthContext();
+
+  // Define navigation items based on user role
+  const getNavigationItems = () => {
+    const baseItems = [
+      { name: 'Home', href: ROUTES.HOME },
+      { name: 'Products', href: ROUTES.PRODUCTS },
+    ];
+
+    if (user?.role === 'seller') {
+      return [
+        ...baseItems,
+        { name: 'Users', href: ROUTES.USERS },
+      ];
+    }
+
+    if (user?.role === 'customer') {
+      return [
+        ...baseItems,
+        { name: 'Contact Us', href: ROUTES.INQUIRY },
+      ];
+    }
+
+    return baseItems;
+  };
+
+  const navigation = getNavigationItems();
 
   return (
     <nav className="border-b bg-white shadow-sm">

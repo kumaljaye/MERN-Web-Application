@@ -4,6 +4,7 @@ import DashboardHome from '@/pages/dashboard/DashboardHome'
 import ProductsPage from '@/pages/products/ProductsPage'
 import UsersPage from '@/pages/users/UsersPage'
 import ProfilePage from '@/pages/profile/ProfilePage'
+import InquiryPage from '@/pages/inquiry/InquiryPage'
 import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
 import UnauthorizedPage from '@/pages/auth/UnauthorizedPage'
@@ -55,6 +56,16 @@ function App() {
           </ProtectedRoute>
         }>
           <Route index element={<ProfilePage />} />
+        </Route>
+
+        <Route path="/inquiry" element={
+          <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={['customer']}>
+              <DashboardLayout />
+            </RoleProtectedRoute>
+          </ProtectedRoute>
+        }>
+          <Route index element={<InquiryPage />} />
         </Route>
       </Routes>
 

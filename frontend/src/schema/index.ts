@@ -94,8 +94,40 @@ export const ProductSchema = z.object({
   image: z.string().optional(),
 });
 
+export const InquirySchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: 'Name is required' })
+    .min(2, { message: 'Name must be at least 2 characters' })
+    .max(100, { message: 'Name cannot exceed 100 characters' }),
+
+  email: z
+    .string()
+    .min(1, { message: 'Email is required' })
+    .email({ message: 'Invalid email address' }),
+
+  phoneNumber: z
+    .string()
+    .min(1, { message: 'Phone number is required' })
+    .min(10, { message: 'Phone number must be at least 10 digits' })
+    .regex(/^\+?[\d\s-()]+$/, { message: 'Invalid phone number format' }),
+
+  subject: z
+    .string()
+    .min(1, { message: 'Subject is required' })
+    .min(3, { message: 'Subject must be at least 3 characters' })
+    .max(200, { message: 'Subject cannot exceed 200 characters' }),
+
+  message: z
+    .string()
+    .min(1, { message: 'Message is required' })
+    .min(10, { message: 'Message must be at least 10 characters' })
+    .max(1000, { message: 'Message cannot exceed 1000 characters' })
+});
+
 // Type exports
 export type UserFormData = z.infer<typeof UserSchema>;
 export type LoginFormData = z.infer<typeof LoginSchema>;
 export type RegisterFormData = z.infer<typeof RegisterSchema>;
 export type ProductFormData = z.infer<typeof ProductSchema>;
+export type InquiryFormData = z.infer<typeof InquirySchema>;

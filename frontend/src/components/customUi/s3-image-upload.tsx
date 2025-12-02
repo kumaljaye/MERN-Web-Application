@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -17,7 +17,9 @@ const S3ImageUpload: React.FC<S3ImageUploadProps> = ({
   disabled = false,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const objectUrlRef = useRef<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(
+    typeof value === 'string' ? value : undefined
+  );
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -59,24 +61,22 @@ const S3ImageUpload: React.FC<S3ImageUploadProps> = ({
     fileInputRef.current?.click();
   };
 
-  // Get image URL for display (either from File object or existing URL)
-  const getImageUrl = () => {
+
+  // Manage preview URL for File value
+  useEffect(() => {
     if (value instanceof File) {
-      // Clean up previous object URL if it exists
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-      }
-      // Create new object URL and store reference
-      objectUrlRef.current = URL.createObjectURL(value);
-      return objectUrlRef.current;
+      const url = URL.createObjectURL(value);
+      setPreviewUrl(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else if (typeof value === 'string') {
+      setPreviewUrl(value);
+    } else {
+      setPreviewUrl(undefined);
     }
-    // Clean up object URL when switching to string URL
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
-    return value;
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   // Show file size for preview
   const getFileSize = () => {
@@ -87,26 +87,11 @@ const S3ImageUpload: React.FC<S3ImageUploadProps> = ({
     return null;
   };
 
-  // Clean up object URL when component unmounts or value changes
-  useEffect(() => {
-    return () => {
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-        objectUrlRef.current = null;
-      }
-    };
-  }, [value]);
 
-  // Handle remove with proper cleanup
+
+  // Handle remove
   const handleRemove = () => {
-    // Clean up object URL if it exists
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
-    
     toast.success('Image removed');
-    // Call the onRemove callback to update the form
     onRemove();
   };
 
@@ -135,11 +120,12 @@ const S3ImageUpload: React.FC<S3ImageUploadProps> = ({
         />
       </div>
 
-      {value && (
+
+      {previewUrl && (
         <div className="relative inline-block">
           <div className="relative w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
             <img
-              src={getImageUrl()}
+              src={previewUrl}
               alt="Profile Preview"
               className="w-full h-full object-cover"
             />
@@ -156,7 +142,6 @@ const S3ImageUpload: React.FC<S3ImageUploadProps> = ({
           </div>
           {value instanceof File && (
             <div className="text-xs text-gray-500 mt-1 space-y-1">
-            
               <p>File size: {getFileSize()}</p>
             </div>
           )}

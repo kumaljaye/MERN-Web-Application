@@ -10,19 +10,18 @@ import { Form } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { InquirySchema, type InquiryFormData } from '@/schema';
 import { useEmailJS } from '@/components/emailjs';
+import { toast } from 'sonner';
 
 
 const InquiryPage: React.FC = () => {
   // Initialize the EmailJS hook with custom options
   const { 
-    sendInquiryEmails, 
+    sendGeneralEmail, 
     isLoading
   } = useEmailJS({
-    successMessage: 'Your inquiry has been sent successfully! We will get back to you soon. Please check your email for confirmation.',
+    successMessage: '',
     errorMessage: 'Failed to send inquiry. Please try again or contact us directly.',
-    onSuccess: () => {
-      form.reset();
-    }
+    onSuccess: () => {}
   });
 
   const form = useForm<InquiryFormData>({
@@ -37,9 +36,42 @@ const InquiryPage: React.FC = () => {
   });
 
   const onSubmit = async (data: InquiryFormData) => {
-    // Send both admin notification and auto-reply emails
-    // Error handling is managed by the hook
-    await sendInquiryEmails(data);
+    try {
+      const adminTemplateId = import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE_ID;
+      const autoReplyTemplateId = import.meta.env.VITE_EMAILJS_AUTO_REPLY_TEMPLATE_ID;
+
+      // Admin notification parameters
+      const adminParams = {
+        from_name: data.name,
+        from_email: data.email,
+        phone_number: data.phoneNumber,
+        subject: data.subject,
+        message: data.message,
+        reply_to: data.email,
+        to_email: 'kumal.j@botcalm.com',
+        inquiry_date: new Date().toLocaleString(),
+      };
+
+      // Auto-reply parameters
+      const autoReplyParams = {
+        to_name: data.name,
+        to_email: data.email,
+        subject: data.subject,
+        original_message: data.message,
+      };
+
+      // Send both emails
+      await Promise.all([
+        sendGeneralEmail(adminTemplateId, adminParams),
+        sendGeneralEmail(autoReplyTemplateId, autoReplyParams)
+      ]);
+      
+      // Show success message and reset form
+      toast.success('Your inquiry has been sent successfully! We will get back to you soon. Please check your email for confirmation.');
+      form.reset();
+    } catch (error) {
+      // Error handling is done by the hook
+    }
   };
 
   return (

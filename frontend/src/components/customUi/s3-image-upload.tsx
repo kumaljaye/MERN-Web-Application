@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import apiClient from '@/libs/axios';
 
 interface S3ImageUploadProps {
-  value?: string;
-  onChange: (value: string) => void;
+  value?: string | File;
+  onChange: (value: File | string) => void;
   onRemove: () => void;
   disabled?: boolean;
 }
@@ -17,144 +16,162 @@ const S3ImageUpload: React.FC<S3ImageUploadProps> = ({
   onRemove,
   disabled = false,
 }) => {
-  const [isUploading, setIsUploading] = useState(false);
-
-  const handleFileUpload = async (file: File) => {
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      // Convert file to base64
-      const base64Data = await convertToBase64(file);
-      
-      const response = await apiClient.post('/api/upload/s3', {
-        base64Data,
-        fileName: file.name,
-        contentType: file.type,
-      });
-
-      const data = response.data;
-      onChange(data.url);
-      toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload image');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const convertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-    });
-  };
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlRef = useRef<string | null>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleFileUpload(file);
+      handlePreview(file);
     }
-    // Reset input value to allow selecting the same file again
-    event.target.value = '';
   };
 
-  const handleRemove = async () => {
-    if (value) {
-      try {
-        const response = await apiClient.delete('/api/upload/s3', {
-          data: {
-            fileUrl: value,
-          },
-        });
+  const handlePreview = (file: File) => {
+    if (!file) return;
 
-        if (response.status === 200) {
-          toast.success('Image removed successfully');
-        }
-      } catch (error) {
-        console.error('Delete error:', error);
-        // Still remove from form even if S3 delete fails
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+
+    // Validate file size (10MB max - will be compressed during upload)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image size should be less than 10MB');
+      return;
+    }
+
+    // Show success message for file selection
+    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+    toast.success(`Image selected (${fileSizeMB}MB) - will be optimized and uploaded to S3 when form is submitted`);
+
+    // Store the file for later upload
+    onChange(file);
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (disabled) return;
+    fileInputRef.current?.click();
+  };
+
+  // Get image URL for display (either from File object or existing URL)
+  const getImageUrl = () => {
+    if (value instanceof File) {
+      // Clean up previous object URL if it exists
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
       }
+      // Create new object URL and store reference
+      objectUrlRef.current = URL.createObjectURL(value);
+      return objectUrlRef.current;
+    }
+    // Clean up object URL when switching to string URL
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+    return value;
+  };
+
+  // Show file size for preview
+  const getFileSize = () => {
+    if (value instanceof File) {
+      const sizeInMB = (value.size / (1024 * 1024)).toFixed(2);
+      return `${sizeInMB} MB`;
+    }
+    return null;
+  };
+
+  // Clean up object URL when component unmounts or value changes
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, [value]);
+
+  // Handle remove with proper cleanup
+  const handleRemove = () => {
+    // Clean up object URL if it exists
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
     }
     
+    toast.success('Image removed');
+    // Call the onRemove callback to update the form
     onRemove();
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          disabled={disabled || isUploading}
-          className="hidden"
-          id="s3-image-upload"
-          aria-label="Upload image file"
-        />
-        
         <Button
           type="button"
           variant="outline"
-          onClick={() => document.getElementById('s3-image-upload')?.click()}
-          disabled={disabled || isUploading}
-          className="flex items-center gap-2"
+          onClick={handleButtonClick}
+          disabled={disabled}
+          className="relative"
         >
-          {isUploading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Uploading to S3...
-            </>
-          ) : (
-            <>
-              <Upload className="w-4 h-4" />
-              Upload to S3
-            </>
-          )}
+          <Upload className="h-4 w-4 mr-2" />
+          {value ? 'Change Image' : 'Select Image'}
         </Button>
 
-        {value && !isUploading && (
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            onClick={handleRemove}
-            disabled={disabled}
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+          disabled={disabled}
+          title="Select image file"
+        />
       </div>
 
       {value && (
-        <div className="relative">
-          <img
-            src={value}
-            alt="User profile preview"
-            className="w-32 h-32 object-cover rounded-lg border"
-          />
+        <div className="relative inline-block">
+          <div className="relative w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
+            <img
+              src={getImageUrl()}
+              alt="Profile Preview"
+              className="w-full h-full object-cover"
+            />
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="absolute top-2 right-2 h-6 w-6 p-0"
+              onClick={handleRemove}
+              disabled={disabled}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          {value instanceof File && (
+            <div className="text-xs text-gray-500 mt-1 space-y-1">
+            
+              <p>File size: {getFileSize()}</p>
+            </div>
+          )}
         </div>
       )}
 
-      <p className="text-sm text-gray-500">
-        Supported formats: JPG, PNG, GIF, WebP. Max size: 5MB. Stored in AWS S3.
-      </p>
+      {!value && (
+        <div className="flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg">
+          <div className="text-center">
+            <ImageIcon className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+            <p className="text-xs text-gray-500">No image</p>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

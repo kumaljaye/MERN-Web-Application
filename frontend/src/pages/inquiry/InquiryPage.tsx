@@ -16,8 +16,7 @@ const InquiryPage: React.FC = () => {
   // Initialize the EmailJS hook with custom options
   const { 
     sendInquiryEmails, 
-    isLoading, 
-    error
+    isLoading
   } = useEmailJS({
     successMessage: 'Your inquiry has been sent successfully! We will get back to you soon. Please check your email for confirmation.',
     errorMessage: 'Failed to send inquiry. Please try again or contact us directly.',

@@ -19,8 +19,6 @@ export interface RegisterData {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
-  confirmPassword: string;
   birthDate: string;
   mobileNumber: string;
   role: 'seller' | 'customer';
@@ -100,6 +98,18 @@ export const updateProfile = async (
   const { data } = await apiClient.patch<AuthResponse>(
     `${API_BASE_URL}/api/auth/me`,
     profileData
+  );
+  return data;
+};
+
+// Change password (requires authentication)
+export const changePassword = async (passwordData: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<AuthResponse> => {
+  const { data } = await apiClient.post<AuthResponse>(
+    `${API_BASE_URL}/api/auth/change-password`,
+    passwordData
   );
   return data;
 };

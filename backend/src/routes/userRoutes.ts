@@ -178,7 +178,7 @@ router.put('/:id', async (req: Request<{ id: string }, any, IUserInput>, res: Re
         email: email.toLowerCase().trim(),
         birthDate,
         gender,
-        image: image || undefined
+        image: image === null || image === '' ? null : image
       },
       { new: true, runValidators: true }
     );

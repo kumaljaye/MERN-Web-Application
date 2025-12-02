@@ -9,6 +9,9 @@ import { FormInput } from '@/components/customUi/form-input';
 import { FormSelect } from '@/components/customUi/form-select';
 import { FormTextarea } from '@/components/customUi/form-textarea';
 import { ImageUpload } from '@/components/customUi';
+import { uploadImageToCloudinary, compressImage } from '@/utils/upload';
+import { toast } from 'react-hot-toast';
+import { useState } from 'react';
 
 type ProductFormData = z.infer<typeof ProductSchema>;
 
@@ -41,6 +44,7 @@ export default function ProductForm({
 }: ProductFormProps) {
   const addProductMutation = useAddProduct();
   const updateProductMutation = useUpdateProduct();
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const defaultValues = {
     name: product?.name || '',
@@ -60,15 +64,65 @@ export default function ProductForm({
   } : undefined;
 
   const handleSubmit = async (data: ProductFormData) => {
-    if (mode === 'create') {
-      await addProductMutation.mutateAsync(data);
-    } else if (mode === 'edit' && product) {
-      await updateProductMutation.mutateAsync({
-        id: product.productId,
+    const loadingToast = toast.loading('Processing product...');
+    
+    try {
+      setIsUploadingImage(true);
+      
+      // Handle image upload if it's a File object
+      let imageUrl = data.image;
+      if (data.image instanceof File) {
+        // Update loading message for image upload
+        toast.loading('Compressing and uploading image...', { id: loadingToast });
+        imageUrl = await uploadImageToCloudinary(data.image);
+        toast.loading('Saving product...', { id: loadingToast });
+      } else {
+        toast.loading('Saving product...', { id: loadingToast });
+      }
+
+      // Prepare the final data with uploaded image URL
+      const finalData = {
         ...data,
-      });
+        image: imageUrl,
+      };
+
+      // Submit product data
+      if (mode === 'create') {
+        await addProductMutation.mutateAsync(finalData);
+      } else if (mode === 'edit' && product) {
+        await updateProductMutation.mutateAsync({
+          id: product.productId,
+          ...finalData,
+        });
+      }
+      
+      // Success feedback
+      toast.success(
+        mode === 'create' ? 'Product added successfully!' : 'Product updated successfully!',
+        { id: loadingToast }
+      );
+      
+      // Close the dialog after successful submission
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Submit error:', error);
+      
+      // Better error handling with specific messages
+      let errorMessage = 'Failed to process product. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('timeout')) {
+          errorMessage = 'Upload took too long. Please check your connection and try again.';
+        } else if (error.message.includes('Upload failed')) {
+          errorMessage = 'Image upload failed. Please try a different image.';
+        } else if (error.message.includes('Network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+      }
+      
+      toast.error(errorMessage, { id: loadingToast });
+    } finally {
+      setIsUploadingImage(false);
     }
-    onOpenChange(false);
   };
 
   return (
@@ -80,6 +134,7 @@ export default function ProductForm({
       defaultValues={defaultValues}
       initialData={initialData}
       onSubmit={handleSubmit}
+      isLoading={isUploadingImage || addProductMutation.isPending || updateProductMutation.isPending}
     >
       {(form) => (
         <>
@@ -117,8 +172,9 @@ export default function ProductForm({
             <label className="text-sm font-medium">Product Image</label>
             <ImageUpload
               value={form.watch('image')}
-              onChange={(url: string) => form.setValue('image', url)}
+              onChange={(fileOrUrl: File | string) => form.setValue('image', fileOrUrl)}
               onRemove={() => form.setValue('image', '')}
+              disabled={isUploadingImage}
             />
           </div>
         </>

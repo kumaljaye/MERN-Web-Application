@@ -8,6 +8,9 @@ import { FormWrapper } from '@/components/customUi/form-wrapper';
 import { FormInput } from '@/components/customUi/form-input';
 import { FormSelect } from '@/components/customUi/form-select';
 import { S3ImageUpload } from '@/components/customUi';
+import { uploadImageToS3 } from '@/utils/upload';
+import { toast } from 'react-hot-toast';
+import { useState } from 'react';
 
 interface UserFormProps {
   open?: boolean;
@@ -18,6 +21,7 @@ interface UserFormProps {
 const UserForm = ({ open = false, onOpenChange, user }: UserFormProps) => {
   const addUserMutation = useAddUser();
   const updateUserMutation = useUpdateUser();
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Define gender options
   const genderOptions = [
@@ -36,22 +40,73 @@ const UserForm = ({ open = false, onOpenChange, user }: UserFormProps) => {
     image: '',
   };
 
-  // Handle form submission
-  const handleSubmit = (data: z.infer<typeof UserSchema>) => {
-    console.log('User form submitted:', data);
+  // Handle form submission with S3 upload
+  const handleSubmit = async (data: z.infer<typeof UserSchema>) => {
+    const loadingToast = toast.loading('Processing user...');
+    
+    try {
+      setIsUploadingImage(true);
+      
+      // Handle image upload if it's a File object
+      let imageUrl = data.image;
+      if (data.image instanceof File) {
+        // Show file size info
+        const fileSizeMB = (data.image.size / (1024 * 1024)).toFixed(2);
+        toast.loading(`Optimizing image (${fileSizeMB}MB)...`, { id: loadingToast });
+        
+        // Upload with to S3
+        imageUrl = await uploadImageToS3(data.image);
+        toast.loading('Saving user...', { id: loadingToast });
+      } else {
+        toast.loading('Saving user...', { id: loadingToast });
+      }
 
-    if (user) {
-      // Edit mode - use React Query mutation
-      updateUserMutation.mutate({ id: user._id, userData: data });
-      console.log('User updated:', data);
-    } else {
-      // Add mode - use React Query mutation
-      addUserMutation.mutate(data);
-      console.log('User added:', data);
+      // Prepare the final data with uploaded image URL
+      // Set image to null if empty string to properly remove it
+      const finalData = {
+        ...data,
+        image: imageUrl === '' ? null : imageUrl,
+      };
+
+      console.log('User form submitted:', finalData);
+
+      if (user) {
+        // Edit mode - use React Query mutation
+        await updateUserMutation.mutateAsync({ id: user._id, userData: finalData });
+        console.log('User updated:', finalData);
+      } else {
+        // Add mode - use React Query mutation
+        await addUserMutation.mutateAsync(finalData);
+        console.log('User added:', finalData);
+      }
+
+      // Success feedback
+      toast.success(
+        user ? 'User updated successfully!' : 'User added successfully!',
+        { id: loadingToast }
+      );
+      
+      // Close the form after successful submission
+      onOpenChange?.(false);
+    } catch (error) {
+      console.error('Submit error:', error);
+      
+      // Better error handling with specific messages
+      let errorMessage = 'Failed to process user. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('timeout')) {
+          errorMessage = 'Upload took too long. Please check your connection and try again.';
+        } else if (error.message.includes('S3 upload')) {
+          errorMessage = 'Image upload to S3 failed. Please try a different image.';
+        } else if (error.message.includes('Network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+      }
+      
+      toast.error(errorMessage, { id: loadingToast });
+    } finally {
+      setIsUploadingImage(false);
     }
-
-    // Close the form after submission
-    onOpenChange?.(false);
   };
 
   // Prepare initial data for edit mode
@@ -75,6 +130,7 @@ const UserForm = ({ open = false, onOpenChange, user }: UserFormProps) => {
       defaultValues={defaultValues}
       initialData={initialData}
       onSubmit={handleSubmit}
+      isLoading={isUploadingImage || addUserMutation.isPending || updateUserMutation.isPending}
     >
       {(form) => (
         <>
@@ -122,8 +178,9 @@ const UserForm = ({ open = false, onOpenChange, user }: UserFormProps) => {
             <label className="text-sm font-medium">Profile Image</label>
             <S3ImageUpload
               value={form.watch('image')}
-              onChange={(url: string) => form.setValue('image', url)}
+              onChange={(fileOrUrl: File | string) => form.setValue('image', fileOrUrl)}
               onRemove={() => form.setValue('image', '')}
+              disabled={isUploadingImage}
             />
           </div>
         </>

@@ -6,8 +6,8 @@ import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface ImageUploadProps {
-  value?: string;
-  onChange: (url: string) => void;
+  value?: string | File;
+  onChange: (file: File | string) => void;
   onRemove: () => void;
   disabled?: boolean;
 }
@@ -18,68 +18,62 @@ export default function ImageUpload({
   onRemove,
   disabled = false,
 }: ImageUploadProps) {
-  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleUpload(file);
+      handlePreview(file);
     }
   };
 
-  const handleUpload = async (file: File) => {
+  const handlePreview = (file: File) => {
     if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+      toast.error('Please select an image file (JPEG, PNG, GIF, or WebP)');
       return;
     }
 
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+    // Validate file size (10MB max - will be compressed during upload)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image size should be less than 10MB');
       return;
     }
 
-    setIsUploading(true);
+    // Show success message for file selection
+    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+    toast.success(`Image selected (${fileSizeMB}MB) - will be optimized during upload`);
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'products');
+    // Store the file for later upload
+    onChange(file);
 
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/dldcuv9jv/image/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Upload failed');
-      }
-
-      const data = await response.json();
-      onChange(data.secure_url);
-      toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload image');
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
-
   const handleButtonClick = () => {
-    if (disabled || isUploading) return;
+    if (disabled) return;
     fileInputRef.current?.click();
+  };
+
+  // Get image URL for display (either from File object or existing URL)
+  const getImageUrl = () => {
+    if (value instanceof File) {
+      return URL.createObjectURL(value);
+    }
+    return value;
+  };
+
+  // Show file size for preview
+  const getFileSize = () => {
+    if (value instanceof File) {
+      const sizeInMB = (value.size / (1024 * 1024)).toFixed(2);
+      return `${sizeInMB} MB`;
+    }
+    return null;
   };
 
   return (
@@ -89,20 +83,11 @@ export default function ImageUpload({
           type="button"
           variant="outline"
           onClick={handleButtonClick}
-          disabled={disabled || isUploading}
+          disabled={disabled}
           className="relative"
         >
-          {isUploading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-              Uploading...
-            </>
-          ) : (
-            <>
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Image
-            </>
-          )}
+          <Upload className="h-4 w-4 mr-2" />
+          {value instanceof File ? 'Change Image' : 'Select Image'}
         </Button>
 
         <input
@@ -111,7 +96,8 @@ export default function ImageUpload({
           accept="image/*"
           onChange={handleFileSelect}
           className="hidden"
-          disabled={disabled || isUploading}
+          disabled={disabled}
+          title="Select image file"
         />
       </div>
 
@@ -119,8 +105,8 @@ export default function ImageUpload({
         <div className="relative inline-block">
           <div className="relative w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
             <img
-              src={value}
-              alt="Product"
+              src={getImageUrl()}
+              alt="Product Preview"
               className="w-full h-full object-cover"
             />
             <Button
@@ -128,12 +114,26 @@ export default function ImageUpload({
               variant="destructive"
               size="sm"
               className="absolute top-2 right-2 h-6 w-6 p-0"
-              onClick={onRemove}
-              disabled={disabled || isUploading}
+              onClick={() => {
+                // Clean up object URL if it's a File
+                if (value instanceof File) {
+                  const url = URL.createObjectURL(value);
+                  URL.revokeObjectURL(url);
+                }
+                toast.success('Image removed');
+                onRemove();
+              }}
+              disabled={disabled}
             >
               <X className="h-3 w-3" />
             </Button>
           </div>
+          {value instanceof File && (
+            <div className="text-xs text-gray-500 mt-1 space-y-1">
+              <p>Preview - Image will be compressed and uploaded when form is submitted</p>
+              <p>File size: {getFileSize()}</p>
+            </div>
+          )}
         </div>
       )}
 

@@ -41,15 +41,15 @@ export async function fetchUsers(
 }
 
 // Keep the old function for backward compatibility (returns all users)
-export async function fetchAllUsers(): Promise<any[]> {
-  try {
-    const response = await fetchUsers({ page: 1, limit: 1000 }); // Large limit to get all
-    return response.users;
-  } catch (err) {
-    console.error('Error fetching all users:', err);
-    throw new Error('Failed to fetch users');
-  }
-}
+// export async function fetchAllUsers(): Promise<any[]> {
+//   try {
+//     const response = await fetchUsers({ page: 1, limit: 1000 }); // Large limit to get all
+//     return response.users;
+//   } catch (err) {
+//     console.error('Error fetching all users:', err);
+//     throw new Error('Failed to fetch users');
+//   }
+// }
 
 // Add new user to MongoDB
 export async function addUser(userData: {

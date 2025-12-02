@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateProfile } from '../apis/auth';
+import { updateProfile, changePassword } from '../apis/auth';
 import { useAuthContext } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -30,8 +30,27 @@ export const useProfileMutations = () => {
     },
   });
 
+  const changePasswordMutation = useMutation({
+    mutationFn: changePassword,
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success('Password changed successfully!');
+      } else {
+        toast.error(data.message || 'Failed to change password');
+      }
+    },
+    onError: (error: any) => {
+      console.error('Password change error:', error);
+      const errorMessage =
+        error.response?.data?.message || 'Failed to change password';
+      toast.error(errorMessage);
+    },
+  });
+
   return {
     updateProfile: updateProfileMutation,
     isUpdating: updateProfileMutation.isPending,
+    changePassword: changePasswordMutation,
+    isChangingPassword: changePasswordMutation.isPending,
   };
 };

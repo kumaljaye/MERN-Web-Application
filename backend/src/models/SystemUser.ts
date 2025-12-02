@@ -95,21 +95,15 @@ SystemUserSchema.statics.findByUserId = function(userId: number) {
  * Validation helpers for registration
  */
 SystemUserSchema.statics.validateRegistrationData = function(userData: Partial<ISystemUserInput>): IValidationResult {
-  const { firstName, lastName, email, password, confirmPassword, birthDate, mobileNumber, role } = userData;
+  const { firstName, lastName, email, birthDate, mobileNumber, role } = userData;
   const missing: string[] = [];
   
   if (!firstName || firstName.trim() === '') missing.push('firstName');
   if (!lastName || lastName.trim() === '') missing.push('lastName');
   if (!email || email.trim() === '') missing.push('email');
-  if (!password || password.trim() === '') missing.push('password');
-  if (!confirmPassword || confirmPassword.trim() === '') missing.push('confirmPassword');
   if (!birthDate) missing.push('birthDate');
   if (!mobileNumber || mobileNumber.trim() === '') missing.push('mobileNumber');
   if (!role || !['seller', 'customer'].includes(role)) missing.push('role');
-  
-  // Additional validations
-  if (password && password.length < 6) missing.push('passwordTooShort');
-  if (password && confirmPassword && password !== confirmPassword) missing.push('passwordMismatch');
   
   return {
     isValid: missing.length === 0,

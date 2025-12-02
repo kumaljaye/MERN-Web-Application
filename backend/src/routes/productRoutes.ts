@@ -9,6 +9,7 @@ const router = express.Router();
 // Apply authentication and seller role requirement to CUD operations (Create, Update, Delete)
 // GET is public for viewing products, but CUD operations require seller role
 
+router.use(authenticateToken);
 
 router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -66,7 +67,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 /**
  * POST /products - Create a new product
  */
-router.post('/', authenticateToken, requireSeller, async (req: Request, res: Response): Promise<void> => {
+router.post('/',  requireSeller, async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, description, price, category, stock, image } = req.body;
 
@@ -108,7 +109,7 @@ router.post('/', authenticateToken, requireSeller, async (req: Request, res: Res
 /**
  * PUT /products/:id - Update an existing product
  */
-router.put('/:id', authenticateToken, requireSeller, async (req: Request, res: Response): Promise<void> => {
+router.put('/:id', requireSeller, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { name, description, price, category, image } = req.body;
@@ -157,7 +158,7 @@ router.put('/:id', authenticateToken, requireSeller, async (req: Request, res: R
 /**
  * DELETE /products/:id - Delete a product
  */
-router.delete('/:id', authenticateToken, requireSeller, async (req: Request, res: Response): Promise<void> => {
+router.delete('/:id', requireSeller, async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 

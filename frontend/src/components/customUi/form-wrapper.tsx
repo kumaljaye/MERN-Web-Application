@@ -22,6 +22,7 @@ interface FormWrapperProps {
   // Form behavior
   onSubmit: (data: any) => void;
   submitButtonText?: string;
+  isLoading?: boolean;
 
   // Optional initial data for editing
   initialData?: Record<string, any>;
@@ -42,6 +43,7 @@ export function FormWrapper({
   defaultValues,
   onSubmit,
   submitButtonText,
+  isLoading = false,
   initialData,
   entityName = 'Item',
   children,
@@ -80,15 +82,8 @@ export function FormWrapper({
   const handleSubmit = (data: FieldValues) => {
     console.log('Form submitted with data:', data);
 
-    // Call the provided onSubmit function
+    // Call the provided onSubmit function (parent handles reset and close)
     onSubmit(data);
-
-    // Reset form
-    form.reset();
-    console.log('Form reset');
-
-    // Close the main form dialog
-    onOpenChange?.(false);
   };
 
   return (
@@ -107,7 +102,21 @@ export function FormWrapper({
           
           {/* Fixed Submit Button */}
           <div className="border-t pt-4 mt-4">
-            <Button type="submit" className="w-full">{finalSubmitButtonText}</Button>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Processing...
+                </>
+              ) : (
+                finalSubmitButtonText
+              )}
+            </Button>
+            {isLoading && (
+              <p className="text-xs text-gray-500 text-center mt-2">
+                Please wait while we process your request...
+              </p>
+            )}
           </div>
         </form>
       </Form>

@@ -31,8 +31,6 @@ export default function RegisterPage() {
       firstName: '',
       lastName: '',
       email: '',
-      password: '',
-      confirmPassword: '',
       birthDate: '',
       mobileNumber: '',
       role: 'customer' as const,
@@ -61,7 +59,7 @@ export default function RegisterPage() {
             Create Account
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Join us today! Please fill in your information.
+            Join us today! Your login credentials will be sent to your email.
           </p>
         </div>
 
@@ -114,28 +112,18 @@ export default function RegisterPage() {
               placeholder="Select your account type"
             />
 
-            <FormInput
-              control={control}
-              name="password"
-              label="Password"
-              type="password"
-              placeholder="Enter your password"
-            />
-
-            <FormInput
-              control={control}
-              name="confirmPassword"
-              label="Confirm Password"
-              type="password"
-              placeholder="Confirm your password"
-            />
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-700">
+                <strong>📧 Password Delivery:</strong> Your login password will be automatically generated and sent to your email address for security.
+              </p>
+            </div>
 
             <Button
               type="submit"
               className="w-full"
               disabled={!isValid || isLoading}
             >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+              {isLoading ? 'Creating Account...' : 'Create Account & Send Password'}
             </Button>
           </form>
         </Form>

@@ -4,6 +4,9 @@ import SystemUser from '../models/SystemUser';
 import { ISystemUserInput } from '../types/database';
 import { generateToken, TokenPayload } from '../utils/jwt';
 import { authenticateToken } from '../middleware/auth';
+import { emailService } from '../services/emailService';
+import { welcomeEmailTemplate } from '../templates/emailTemplates';
+import { generatePassword } from '../utils/passwordGenerator';
 
 const router = Router();
 
@@ -33,17 +36,9 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check if passwords match
-    if (userData.password !== userData.confirmPassword) {
-      res.status(400).json({
-        success: false,
-        message: 'Passwords do not match'
-      });
-      return;
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    // Generate password
+    const generatedPassword = generatePassword(10);
+    const hashedPassword = await bcrypt.hash(generatedPassword, 10);
 
     // Create new user
     const newUser = new SystemUser({
@@ -72,20 +67,27 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       createdAt: newUser.createdAt
     };
 
-    // Generate JWT token
-    const tokenPayload: TokenPayload = {
-      userId: newUser.userId,
-      name: `${newUser.firstName} ${newUser.lastName}`,
+
+    // Send welcome email
+    const welcomeHtml = welcomeEmailTemplate({
+      firstName: newUser.firstName,
       email: newUser.email,
-      role: newUser.role
-    };
-    const token = generateToken(tokenPayload);
+      password: generatedPassword,
+      loginUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+      appName: 'BotCalm'
+    });
+    
+    await emailService.sendEmail({
+      to: newUser.email,
+      subject: 'Welcome to BotCalm!',
+      html: welcomeHtml
+    });
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: userResponse,
-      token
+      
     });
 
   } catch (error) {

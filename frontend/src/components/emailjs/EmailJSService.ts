@@ -12,7 +12,7 @@ export class EmailJSService {
   private publicKey: string;
 
   constructor() {
-    this.serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_3nhmcls';
+    this.serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
     this.publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
   }
 

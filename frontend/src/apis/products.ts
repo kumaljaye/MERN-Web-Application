@@ -55,25 +55,45 @@ export interface ApiResponse {
   data?: any;
 }
 
-// Add new product
+// Add new product with timeout and retry logic
 export const addProduct = async (productData: ProductData): Promise<ApiResponse> => {
-  const { data } = await apiClient.post<ApiResponse>(
-    `${API_BASE_URL}/api/products`,
-    productData
-  );
-  return data;
+  try {
+    const { data } = await apiClient.post<ApiResponse>(
+      `${API_BASE_URL}/api/products`,
+      productData,
+      {
+        timeout: 15000, // 15 second timeout
+      }
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('timeout')) {
+      throw new Error('Request timeout. Please try again.');
+    }
+    throw error;
+  }
 };
 
-// Update product
+// Update product with timeout and retry logic
 export const updateProduct = async (
   productId: number,
   productData: ProductData
 ): Promise<ApiResponse> => {
-  const { data } = await apiClient.put<ApiResponse>(
-    `${API_BASE_URL}/api/products/${productId}`,
-    productData
-  );
-  return data;
+  try {
+    const { data } = await apiClient.put<ApiResponse>(
+      `${API_BASE_URL}/api/products/${productId}`,
+      productData,
+      {
+        timeout: 15000, // 15 second timeout
+      }
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('timeout')) {
+      throw new Error('Request timeout. Please try again.');
+    }
+    throw error;
+  }
 };
 
 // Delete product
@@ -85,12 +105,12 @@ export const deleteProduct = async (productId: number): Promise<ApiResponse> => 
 };
 
 // Keep the old function for backward compatibility (returns all products)
-export async function fetchAllProducts(): Promise<any[]> {
-  try {
-    const response = await fetchProducts({ page: 1, limit: 1000 }); // Large limit to get all
-    return response.products;
-  } catch (err) {
-    console.error('Error fetching all products:', err);
-    throw new Error('Failed to fetch products');
-  }
-}
+// export async function fetchAllProducts(): Promise<any[]> {
+//   try {
+//     const response = await fetchProducts({ page: 1, limit: 1000 }); // Large limit to get all
+//     return response.products;
+//   } catch (err) {
+//     console.error('Error fetching all products:', err);
+//     throw new Error('Failed to fetch products');
+//   }
+// }
